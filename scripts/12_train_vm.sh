@@ -32,7 +32,15 @@ NAME=\$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/com
 ZONE=\$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/zone | awk -F/ '{print \$NF}')
 self_delete() { gsutil cp /var/log/patchguard-startup.log "\$OUT/vm_startup.log" || true; gcloud compute instances delete "\$NAME" --zone="\$ZONE" --quiet; }
 trap self_delete EXIT
-for i in \$(seq 1 60); do nvidia-smi >/dev/null 2>&1 && docker info >/dev/null 2>&1 && break; sleep 5; done
+export DEBIAN_FRONTEND=noninteractive
+# wait for the (pre-baked) NVIDIA driver to be ready
+for i in \$(seq 1 60); do nvidia-smi >/dev/null 2>&1 && break; sleep 5; done
+# the common-cuXXX DLVM image has the driver but NOT docker — install docker + nvidia container toolkit
+apt-get update -y && apt-get install -y docker.io curl gnupg
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' > /etc/apt/sources.list.d/nvidia-container-toolkit.list
+apt-get update -y && apt-get install -y nvidia-container-toolkit
+nvidia-ctk runtime configure --runtime=docker && systemctl restart docker && sleep 3
 gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 docker pull "\$IMG"
 docker run --gpus all "\$IMG" \
