@@ -101,12 +101,39 @@ def _selftest(out_path: str) -> None:
     print(f"wrote {path}")
 
 
+def _funsd(funsd_dir: str, split: str, n: int, out_dir: str) -> None:
+    """Render ColPali's real 32x32/448 grid over N real FUNSD forms. Pure geometry — no model needed.
+
+    This is the S3 gate on real data: eyeball that the highlighted patches sit on the form's fields
+    under ColPali's actual resize policy (squash to 448x448).
+    """
+    import numpy as np
+    from PIL import Image
+
+    from patchguard.data.funsd import iter_funsd
+
+    for i, ps in enumerate(iter_funsd(funsd_dir, split=split, granularity="word")):
+        if i >= n:
+            break
+        img = np.array(Image.open(ps.image_path).convert("RGB"))
+        path = render_alignment(
+            img, ps.boxes(), grid=(32, 32), input_size=(448, 448), resize_policy="squash",
+            out_path=f"{out_dir}/funsd_{ps.doc_id}.png", title=f"FUNSD {ps.doc_id} (ColPali 32x32/448 squash)",
+        )
+        print(f"wrote {path}  ({len(ps.fields)} fields)")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--funsd", metavar="DIR", help="FUNSD root dir to render real forms from")
+    ap.add_argument("--split", default="training_data")
+    ap.add_argument("--n", type=int, default=6)
     ap.add_argument("--out", default="results/align_selftest.png")
     args = ap.parse_args()
     if args.selftest:
         _selftest(args.out)
+    elif args.funsd:
+        _funsd(args.funsd, args.split, args.n, "results/align_funsd")
     else:
-        ap.error("provide --selftest, or import render_alignment() from a dataset loop")
+        ap.error("provide --selftest or --funsd DIR")

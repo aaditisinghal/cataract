@@ -8,6 +8,7 @@ from patchguard.eval.frontier import (
 )
 from patchguard.eval.killgate import GO, MEASUREMENT, STOP, KillGateResult, kill_gate
 from patchguard.eval.pfrr import DEFAULT_CONFUSIONS, FieldResult, field_recovery, normalize, pfrr
+from patchguard.eval.reconstruct import ocr_field_pfrr, reconstruct
 
 __all__ = [
     "bootstrap_ci",
@@ -24,4 +25,6 @@ __all__ = [
     "GO",
     "MEASUREMENT",
     "STOP",
+    "reconstruct",
+    "ocr_field_pfrr",
 ]

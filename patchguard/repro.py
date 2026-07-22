@@ -70,8 +70,19 @@ def run_fingerprint() -> dict[str, Any]:
     """
     sha = _git("rev-parse", "HEAD")
     status = _git("status", "--porcelain")
-    # dirty if there are uncommitted changes, or if git state is unknown.
-    git_dirty = True if status is None else bool(status.strip())
+    if sha is None:
+        # No git tree (e.g. inside the built container). Fall back to build-stamped provenance
+        # written by scripts/10_build_image.sh so container runs are still paper-ready.
+        try:
+            from patchguard import _buildinfo  # type: ignore
+
+            sha = _buildinfo.GIT_SHA
+            git_dirty = bool(getattr(_buildinfo, "GIT_DIRTY", True))
+        except Exception:
+            git_dirty = True
+    else:
+        # dirty if there are uncommitted changes, or if git state is unknown.
+        git_dirty = True if status is None else bool(status.strip())
 
     fp: dict[str, Any] = {
         "git_sha": sha or "unknown",
