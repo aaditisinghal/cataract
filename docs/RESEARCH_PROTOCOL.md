@@ -1,10 +1,14 @@
-# Your Embeddings Are Photographs
+# The Persistence of Vision
+
+### PII Reconstruction and Patch-Scoped Privacy in Multi-Vector Vision-Language Retrieval
 
 **Research protocol — v1.1 (revised)**
 
 > Multi-vector visual-document embeddings (ColPali-family patch grids) are invertible to field-level PII. The *same spatial locality* that makes them leak is also the primitive for a defense and the reason naive erasure fails. This is the paper.
 
-- **Target venues:** USENIX Security (primary) · IEEE S&P (secondary) · NeurIPS D&B (fallback / if it becomes a measurement+benchmark paper)
+*(Working title. "PII" = Personally Identifiable Information; spelled out on first use in the abstract, acronym in the title. Earned only if the kill test passes — else retitle to a measurement paper.)*
+
+- **Target venues:** IEEE S&P (primary) · USENIX Security (secondary) · NeurIPS D&B (fallback / if it becomes a measurement+benchmark paper)
 - **Status:** planning. Nothing built. First artifact to exist is the *kill-test frontier plot*.
 - **What changed from v1.0:** see [§0 Revision notes](#0-revision-notes--what-changed-and-why). The science is the same; the *narrative spine, sequencing, and three risk calls* changed.
 

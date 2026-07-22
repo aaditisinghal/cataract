@@ -1,10 +1,10 @@
 # patchguard-paper
 
-Working folder for **"Your Embeddings Are Photographs"** — embedding inversion of ColPali-family
-multi-vector visual-document retrievers to field-level PII, plus a patch-scoped defense and an
-erasure finding.
+Working folder for **"The Persistence of Vision: PII Reconstruction and Patch-Scoped Privacy in
+Multi-Vector Vision-Language Retrieval"** — embedding inversion of ColPali-family multi-vector
+visual-document retrievers to field-level PII, plus a patch-scoped defense and an erasure finding.
 
-- **Target venues:** USENIX Security (primary) · IEEE S&P (secondary) · NeurIPS D&B (fallback)
+- **Target venues:** IEEE S&P (primary) · USENIX Security (secondary) · NeurIPS D&B (fallback)
 - **START HERE — master plan (0→100):** [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) — the execution roadmap + gates.
 - **Full protocol (the science):** [`docs/RESEARCH_PROTOCOL.md`](docs/RESEARCH_PROTOCOL.md) — v1.1, revised.
 - **Compute plan (the infra):** [`docs/GCP_COMPUTE_PLAN.md`](docs/GCP_COMPUTE_PLAN.md) — $25k GCP credits, Vertex ephemeral jobs.
