@@ -12,8 +12,8 @@ ENV CUBLAS_WORKSPACE_CONFIG=:4096:8 \
 
 WORKDIR /app
 
-# System libs for PIL image IO.
-RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 git \
+# System libs for PIL image IO + Tesseract OCR (PFRR measurement).
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 git tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
 
 # Our package (core dep = numpy) + the model/attack/runtime stack, WITHOUT torch (base provides it).
@@ -28,6 +28,7 @@ RUN pip install --no-cache-dir -e . \
         "pillow" \
         "colpali-engine==0.3.5" \
         "google-cloud-storage" \
+        "pytesseract" \
     && (pip install --no-cache-dir lpips || true)
 
 # Default: show the entrypoint help.
