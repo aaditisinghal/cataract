@@ -4,10 +4,10 @@
 # Provisions 1 L4, asserts CUDA, writes a file to the bucket, then the machine is released automatically.
 set -euo pipefail
 
-# ---- EDIT THESE (match scripts/00_bootstrap.sh) ----
-PROJECT_ID="patchguard-$(whoami)"
+# ---- ACTUAL VALUES (match scripts/00_bootstrap.sh) ----
+PROJECT_ID="patchguard-reakon"
 REGION="us-central1"
-# ----------------------------------------------------
+# -------------------------------------------------------
 BUCKET="gs://${PROJECT_ID}-artifacts"
 gcloud config set project "${PROJECT_ID}"
 

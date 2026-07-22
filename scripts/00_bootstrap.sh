@@ -6,11 +6,13 @@
 # Vertex/GCE use attached service accounts + your keyless ADC, which is enough.
 set -euo pipefail
 
-# ---- EDIT THESE ------------------------------------------------------------
-PROJECT_ID="patchguard-$(whoami)"          # must be globally unique; edit if taken
-BILLING_ACCT="XXXXXX-XXXXXX-XXXXXX"         # gcloud billing accounts list  -> copy the ID
+# ---- ACTUAL VALUES (provisioned 2026-07-22) --------------------------------
+PROJECT_ID="patchguard-reakon"             # created under org profitwise.app (483346253498)
+BILLING_ACCT="014F80-4CDA1C-D6AEC2"        # "My Billing Account" (holds the $25k credits)
 REGION="us-central1"                        # best A100/L4 availability + price
 # ---------------------------------------------------------------------------
+# NOTE: this project is ALREADY provisioned (project+billing+APIs+buckets+registry+ADC all done).
+# This script is kept as the reproducible record / for rebuilding from scratch after teardown.
 
 echo "==> Authenticate (browser)"
 gcloud auth login
