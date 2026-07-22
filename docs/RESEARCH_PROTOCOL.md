@@ -37,6 +37,8 @@ These are the edits folded into this version. They do not add scope; they re-ord
 
 8. **Compute budget padded** from ~$500 to a planning figure of **~$1.5–2k** so a slip doesn't force a scientific compromise. $500 remains the optimistic floor.
 
+9. **S0 premise gate PASSED (2026-07-22) → GO.** All four literatures verified real against arXiv; the intersection is empty; the closest precursor (Ghost Vectors) is real but text-only/single-vector, so we are not scooped. See [`RELATED_WORK_VERIFIED.md`](RELATED_WORK_VERIFIED.md) for the full table and a **7-item fix-before-writing list** (LeakyCLIP SSIM 258% not 358%; Vec2Text "RQ4" belongs to the reproducibility study; EntroGuard is "entropy-driven" + drop the ε≈0.036 figure; PRESS has no arXiv ID; **EDPB 05/2019 mischaracterized — re-ground Claim 4's legal hook in Article 17 itself**; IDNet is 10 US states + 10 EU countries via SD2.0 inpainting of real IDs, not DMV templates; TrustCLIP's patch-token claim needs an in-body check).
+
 ---
 
 ## 1. Contribution, in one paragraph
@@ -116,7 +118,7 @@ Port EntroGuard, PRESS, Koga (token-selective budget), flat Gaussian, TrustCLIP 
 
 **Real-vs-synthetic is a stated axis:** the headline attack must be shown to hold on *real* documents (FUNSD/CORD/DocLayNet-finance), not only on IDNet.
 
-**Ethics asset:** IDNet's pipeline uses Stable Diffusion to *remove* portraits and PII from publicly available DMV sample templates — no real person's data is at risk, layouts stay faithful. This is the ethics-section anchor.
+**Ethics asset (corrected per verification):** IDNet uses **Stable Diffusion 2.0 to inpaint away PII from real ID images** and fills **synthetic** PII (GPT-3.5-generated); coverage is **10 US states + 10 European countries**. Frame as *"final images contain only synthetic PII"* — not "no real person's data is at risk" (templates derive from real docs). Layouts stay faithful. Still a strong ethics anchor. See [`RELATED_WORK_VERIFIED.md`](RELATED_WORK_VERIFIED.md).
 
 ---
 
