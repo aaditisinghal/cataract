@@ -3,7 +3,7 @@
 # writes checkpoint + metrics to the artifacts bucket, then the machine tears down.
 set -euo pipefail
 GC="$HOME/google-cloud-sdk/bin/gcloud"
-REGION="us-central1"
+REGION="${1:-us-central1}"   # pass a region as $1 to switch pools, e.g. us-east4 for L4 availability
 PROJECT="patchguard-reakon"
 SHA="$(git rev-parse --short HEAD)"
 IMG="$(cat .last_image 2>/dev/null || echo "${REGION}-docker.pkg.dev/${PROJECT}/patchguard/repro:${SHA}")"
