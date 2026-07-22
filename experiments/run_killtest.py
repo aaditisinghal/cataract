@@ -17,20 +17,49 @@ from __future__ import annotations
 import argparse
 import json
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 
 from patchguard.attack.train import Sample, TrainConfig, build_dataset, train_decoder
+from patchguard.data.fields import AnnotatedField
 from patchguard.defense.localize import OracleLocalizer
 from patchguard.defense.perturb import flat_gaussian, patch_scoped_gaussian
 from patchguard.eval.killgate import assemble_and_gate
 from patchguard.eval.reconstruct import TesseractOCR, ocr_field_pfrr, reconstruct
 from patchguard.repro import run_fingerprint, seed_everything
-from patchguard.retrievers.base import maxsim
 
 
-def _doc_query_text(s: Sample, max_len: int = 200) -> str:
+@dataclass
+class Page:
+    """A test page carrying the loaded image AND full field annotations (text needed for PFRR)."""
+
+    image: np.ndarray
+    fields: list[AnnotatedField]
+    size: tuple[int, int]  # (width, height)
+
+    def boxes(self) -> list[tuple[float, float, float, float]]:
+        return [f.box for f in self.fields]
+
+
+def load_pages(root: str, split: str, limit: int | None) -> list[Page]:
+    from PIL import Image
+
+    from patchguard.data.funsd import iter_funsd
+
+    pages: list[Page] = []
+    for ps in iter_funsd(root, split=split, granularity="word"):
+        img = np.array(Image.open(ps.image_path).convert("RGB"))
+        pages.append(Page(image=img, fields=ps.fields, size=ps.size))
+        if limit and len(pages) >= limit:
+            break
+    if not pages:
+        raise RuntimeError(f"no pages under {root}/{split}")
+    return pages
+
+
+def _doc_query_text(s: Page, max_len: int = 200) -> str:
     return " ".join(f.text for f in s.fields)[:max_len] or "document"
 
 
@@ -40,7 +69,7 @@ def _per_doc_recovery(decoder, retriever, samples, encs, ocr, out_size, device, 
     for i, (s, enc) in enumerate(zip(samples, encs)):
         recon = reconstruct(decoder, enc, device)
         fields = s.fields[:max_fields]
-        res = ocr_field_pfrr(recon, fields, s.orig_size, out_size, enc.resize_policy, ocr)
+        res = ocr_field_pfrr(recon, fields, s.size, out_size, enc.resize_policy, ocr)
         rates[i] = sum(r.normalized_exact for r in res) / max(len(res), 1)
     return rates
 
@@ -75,7 +104,7 @@ def main() -> None:
 
     from patchguard.retrievers.bipali import PooledRetriever
     from patchguard.retrievers.colpali import ColPaliRetriever
-    from experiments.train_funsd import _gcs_download, _gcs_upload, load_funsd_samples
+    from experiments.train_funsd import _gcs_download, _gcs_upload
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     out_size = (448, 448)
@@ -85,8 +114,10 @@ def main() -> None:
     data_root = args.data
     if str(data_root).startswith("gs://"):
         data_root = str(_gcs_download(data_root, Path(tempfile.mkdtemp())))
-    train_s = load_funsd_samples(data_root, "training_data", args.train_limit, "word")
-    test_s = load_funsd_samples(data_root, "testing_data", args.test_limit, "word")
+    # training uses lightweight Samples (only need boxes for the weight map); eval uses full Pages
+    train_pages = load_pages(data_root, "training_data", args.train_limit)
+    train_s = [Sample(image=p.image, field_boxes=p.boxes(), orig_size=p.size) for p in train_pages]
+    test_s = load_pages(data_root, "testing_data", args.test_limit)
     print(f"train={len(train_s)} test={len(test_s)}")
 
     colpali = ColPaliRetriever(model_name=args.model)
