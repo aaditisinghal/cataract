@@ -39,11 +39,14 @@ class PageEncoding:
         if self.patches.ndim != 2:
             raise ValueError(f"patches must be (n_patches, d); got shape {self.patches.shape}")
         gh, gw = self.grid
-        expected = self.n_prefix_tokens + gh * gw
-        if self.patches.shape[0] != expected:
+        # The contiguous image-patch block is [n_prefix : n_prefix + gh*gw]. Models may emit
+        # TRAILING tokens after it (e.g. ColPali/PaliGemma places 1024 image tokens first, then a
+        # short instruction suffix), so the total only needs to be at least this large.
+        needed = self.n_prefix_tokens + gh * gw
+        if self.patches.shape[0] < needed:
             raise ValueError(
-                f"patch count {self.patches.shape[0]} != n_prefix({self.n_prefix_tokens}) "
-                f"+ grid({gh}x{gw}={gh * gw}) = {expected}"
+                f"patch count {self.patches.shape[0]} < n_prefix({self.n_prefix_tokens}) "
+                f"+ grid({gh}x{gw}={gh * gw}) = {needed}"
             )
         if self.resize_policy not in VALID_RESIZE_POLICIES:
             raise ValueError(f"resize_policy must be one of {VALID_RESIZE_POLICIES}")
@@ -57,8 +60,13 @@ class PageEncoding:
         return int(self.patches.shape[1])
 
     def image_patches(self) -> np.ndarray:
-        """Just the spatial patches, prefix tokens stripped — the thing align.py maps boxes onto."""
-        return self.patches[self.n_prefix_tokens :]
+        """The gh*gw spatial patches only — the thing align.py maps boxes onto.
+
+        Strips both the prefix tokens and any trailing (instruction) tokens.
+        """
+        gh, gw = self.grid
+        start = self.n_prefix_tokens
+        return self.patches[start : start + gh * gw]
 
 
 @runtime_checkable

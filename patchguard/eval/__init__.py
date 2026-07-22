@@ -6,6 +6,7 @@ from patchguard.eval.frontier import (
     frontier_auc,
     two_proportion_z,
 )
+from patchguard.eval.killgate import GO, MEASUREMENT, STOP, KillGateResult, kill_gate
 from patchguard.eval.pfrr import DEFAULT_CONFUSIONS, FieldResult, field_recovery, normalize, pfrr
 
 __all__ = [
@@ -18,4 +19,9 @@ __all__ = [
     "field_recovery",
     "normalize",
     "pfrr",
+    "kill_gate",
+    "KillGateResult",
+    "GO",
+    "MEASUREMENT",
+    "STOP",
 ]
