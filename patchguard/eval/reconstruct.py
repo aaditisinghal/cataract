@@ -64,9 +64,27 @@ def ocr_field_pfrr(
         x1 = min(ow, int(np.ceil(rx1)) + pad)
         y1 = min(oh, int(np.ceil(ry1)) + pad)
         crop = recon_image[y0:y1, x0:x1]
-        text = ocr.read(crop) if crop.size > 0 else ""
+        text = ocr.read(_upscale_for_ocr(crop)) if crop.size > 0 else ""
         results.append(field_recovery(f.field_type, f.text, text))
     return results
+
+
+def _upscale_for_ocr(crop: np.ndarray, min_height: int = 40) -> np.ndarray:
+    """Tesseract needs ~30-40px cap height. Field crops off a 448px canvas are tiny, so upscale.
+
+    Does not add detail — just gives OCR a fighting chance on small-but-legible text.
+    """
+    h = crop.shape[0]
+    if h == 0 or h >= min_height:
+        return crop
+    try:
+        from PIL import Image
+
+        scale = int(np.ceil(min_height / h))
+        im = Image.fromarray(crop)
+        return np.array(im.resize((crop.shape[1] * scale, h * scale), Image.LANCZOS))
+    except Exception:
+        return crop
 
 
 class TesseractOCR:

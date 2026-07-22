@@ -74,6 +74,18 @@ def _per_doc_recovery(decoder, retriever, samples, encs, ocr, out_size, device, 
     return rates
 
 
+def _dump_recons(decoder, pages, encs, out_size, device, out_dir: Path, n: int = 4) -> None:
+    """Save original|reconstruction side-by-side for a few pages — the legibility eyeball test."""
+    from PIL import Image
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for i in range(min(n, len(pages))):
+        recon = reconstruct(decoder, encs[i], device)  # (H,W,3) uint8
+        orig = np.array(Image.fromarray(pages[i].image).resize((out_size[1], out_size[0])))
+        side = np.concatenate([orig, recon], axis=1)
+        Image.fromarray(side).save(out_dir / f"recon_{i}.png")
+
+
 def _reciprocal_ranks(retriever, samples, page_encs):
     """Per-doc self-retrieval reciprocal rank over the (defended) corpus = utility proxy."""
     queries = [retriever.encode_query(_doc_query_text(s)) for s in samples]
@@ -144,6 +156,8 @@ def main() -> None:
     rec_cp = _per_doc_recovery(decoders["colpali"], colpali, test_s, test_encs_cp, ocr, out_size, device, args.max_fields)
     rec_bp = _per_doc_recovery(decoders["bipali"], bipali, test_s, test_encs_bp, ocr, out_size, device, args.max_fields)
     print(f"undefended PFRR: colpali={rec_cp.mean():.3f} bipali={rec_bp.mean():.3f}")
+    # legibility eyeball: save a few original|reconstruction images for inspection
+    _dump_recons(decoders["colpali"], test_s, test_encs_cp, out_size, device, local_out / "recon_samples")
 
     # frontier: flat vs oracle-patch-scoped on ColPali, per-doc priv (1-PFRR) + util (reciprocal rank)
     loc = OracleLocalizer()

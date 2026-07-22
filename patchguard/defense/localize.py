@@ -29,8 +29,12 @@ class OracleLocalizer:
     def locate(
         self, enc: PageEncoding, field_boxes: list[Box], orig_size: tuple[int, int]
     ) -> np.ndarray:
-        """field_boxes in ORIGINAL pixels; orig_size = (width, height) of that page."""
-        return boxes_to_patch_mask(
+        """field_boxes in ORIGINAL pixels; orig_size = (width, height) of that page.
+
+        Returned mask spans the FULL token sequence (enc.n_patches), so any trailing instruction
+        tokens after the gh*gw image block are padded False.
+        """
+        mask = boxes_to_patch_mask(
             boxes=field_boxes,
             orig_size=orig_size,
             grid=enc.grid,
@@ -39,6 +43,11 @@ class OracleLocalizer:
             coverage_threshold=self.coverage_threshold,
             n_prefix_tokens=enc.n_prefix_tokens,
         )
+        if mask.shape[0] < enc.n_patches:
+            mask = np.concatenate(
+                [mask, np.zeros(enc.n_patches - mask.shape[0], dtype=bool)]
+            )
+        return mask
 
 
 class DetectorLocalizer:

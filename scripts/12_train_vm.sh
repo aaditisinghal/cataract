@@ -27,7 +27,7 @@ TAG="$(basename "$IMG" | tr ':' '-')"
 case "$JOB" in
   killtest)
     OUT="gs://patchguard-reakon-artifacts/runs/killtest-${TAG}"
-    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.run_killtest --data gs://patchguard-reakon-data/funsd --out ${OUT} --epochs 30 --train-limit 120 --test-limit 20 --noise-levels 5"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.run_killtest --data gs://patchguard-reakon-data/funsd --out ${OUT} --epochs 120 --train-limit 149 --test-limit 20 --noise-levels 5"
     ;;
   *)
     OUT="gs://patchguard-reakon-artifacts/runs/decoder-gce-${TAG}"
