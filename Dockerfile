@@ -20,11 +20,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2
 COPY pyproject.toml ./
 COPY patchguard ./patchguard
 COPY experiments ./experiments
+# Pin colpali-engine to the release compatible with the base image's torch 2.3.1:
+#   0.3.5 -> torch>=2.2 (base 2.3.1 OK) + transformers 4.46.x (avoids the transformers-5.x break).
+# Do NOT pin transformers separately — let colpali-engine resolve its own compatible transformers/peft.
 RUN pip install --no-cache-dir -e . \
     && pip install --no-cache-dir \
         "pillow" \
-        "transformers>=4.44" \
-        "colpali-engine" \
+        "colpali-engine==0.3.5" \
         "google-cloud-storage" \
     && (pip install --no-cache-dir lpips || true)
 
