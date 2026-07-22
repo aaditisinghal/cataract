@@ -1,0 +1,49 @@
+[project]
+name = "patchguard"
+version = "0.0.1"
+description = "Embedding inversion of ColPali-family visual document retrievers, and a patch-scoped defense."
+requires-python = ">=3.11"
+# Core deps kept minimal so the pure-logic layer (align, eval) runs without a GPU stack.
+dependencies = [
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+# Heavy model/attack stack — needed for retrievers/attack/diffusion, not for the tested logic core.
+gpu = [
+    "torch>=2.8",
+    "pillow>=10.0",
+    "transformers>=4.44",
+]
+# Local dev + CI.
+dev = [
+    "pytest>=8.0",
+    "mypy>=1.10",
+    "ruff>=0.5",
+]
+# Visualization / validators (alignment overlays, frontier plots).
+viz = [
+    "matplotlib>=3.8",
+    "pillow>=10.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["patchguard*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+# The GPU stack has loose stubs; keep strict on our code, lenient on their imports.
+ignore_missing_imports = true

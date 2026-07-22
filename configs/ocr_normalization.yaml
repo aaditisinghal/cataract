@@ -1,0 +1,20 @@
+# OCR-confusion normalization table (mirror of patchguard/eval/pfrr.py DEFAULT_CONFUSIONS).
+# Versioned because whether we fold these decides the headline normalized-PFRR number.
+# Multi-char rules (len > 1) are applied before single-char rules, longest-first.
+# Keep this file and DEFAULT_CONFUSIONS in sync — pfrr.py is the source of truth for tests.
+version: 1
+multichar:
+  rn: m
+  cl: d
+single:
+  O: "0"
+  o: "0"
+  Q: "0"
+  D: "0"
+  I: "1"
+  l: "1"
+  "|": "1"
+  Z: "2"
+  S: "5"
+  B: "8"
+  g: "9"
