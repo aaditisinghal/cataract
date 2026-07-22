@@ -29,6 +29,8 @@ RUN pip install --no-cache-dir -e . \
         "colpali-engine==0.3.5" \
         "google-cloud-storage" \
         "pytesseract" \
+        "diffusers==0.31.0" \
+        "accelerate" \
     && (pip install --no-cache-dir lpips || true)
 
 # Default: show the entrypoint help.

@@ -29,6 +29,10 @@ case "$JOB" in
     OUT="gs://patchguard-reakon-artifacts/runs/killtest-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.run_killtest --data gs://patchguard-reakon-data/funsd --out ${OUT} --epochs 120 --train-limit 149 --test-limit 20 --noise-levels 5"
     ;;
+  diffusion)
+    OUT="gs://patchguard-reakon-artifacts/runs/diffusion-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.train_diffusion --data gs://patchguard-reakon-data/funsd --out ${OUT} --epochs 80 --limit 149 --dump 6"
+    ;;
   *)
     OUT="gs://patchguard-reakon-artifacts/runs/decoder-gce-${TAG}"
     CMD="docker run --gpus all ${IMG} --data gs://patchguard-reakon-data/funsd --split training_data --out ${OUT} --epochs 40 --limit 200 --granularity word"
