@@ -9,10 +9,11 @@ __pycache__/
 venv/
 
 # data + artifacts (live in GCS, not git — see GCP_COMPUTE_PLAN)
-data/
-results/
-runs/
-checkpoints/
+# NB: leading slash = ROOT ONLY, so these never match the source package patchguard/data/.
+/data/
+/results/
+/runs/
+/checkpoints/
 *.ckpt
 *.pt
 *.safetensors
