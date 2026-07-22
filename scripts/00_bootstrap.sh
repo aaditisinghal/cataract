@@ -41,6 +41,15 @@ gcloud artifacts repositories create patchguard \
   --repository-format=docker --location="${REGION}" \
   --description="PatchGuard repro images" || true
 
+echo "==> Cloud Build IAM: newer Cloud Build runs as the Compute Engine default SA, which on a fresh"
+echo "    project can't read its own source bucket / push to Artifact Registry. Grant the roles."
+PROJECT_NUM="$(gcloud projects describe "${PROJECT_ID}" --format='value(projectNumber)')"
+CB_SA="${PROJECT_NUM}-compute@developer.gserviceaccount.com"
+for ROLE in roles/storage.admin roles/artifactregistry.writer roles/logging.logWriter roles/cloudbuild.builds.builder; do
+  gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --member="serviceAccount:${CB_SA}" --role="${ROLE}" --condition=None >/dev/null && echo "  granted ${ROLE}"
+done
+
 echo "==> Keyless Application Default Credentials (this is the auth your notes confirm works)"
 gcloud auth application-default login
 
