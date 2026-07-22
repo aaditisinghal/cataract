@@ -8,7 +8,7 @@ FROM pytorch/pytorch:2.3.1-cuda12.1-cudnn8-runtime
 
 ENV CUBLAS_WORKSPACE_CONFIG=:4096:8 \
     PYTHONUNBUFFERED=1 \
-    HF_HUB_ENABLE_HToken=0
+    HF_HUB_DISABLE_TELEMETRY=1
 
 WORKDIR /app
 
@@ -22,11 +22,11 @@ COPY patchguard ./patchguard
 COPY experiments ./experiments
 RUN pip install --no-cache-dir -e . \
     && pip install --no-cache-dir \
-        pillow \
-        transformers>=4.44 \
-        colpali-engine \
-        google-cloud-storage \
-        && pip install --no-cache-dir lpips || true
+        "pillow" \
+        "transformers>=4.44" \
+        "colpali-engine" \
+        "google-cloud-storage" \
+    && (pip install --no-cache-dir lpips || true)
 
 # Default: show the entrypoint help.
 ENTRYPOINT ["python", "-m", "experiments.train_funsd"]
