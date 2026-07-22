@@ -21,14 +21,17 @@ naive patch deletion doesn't erase (4).**
    Claim-4a probe. Build nothing else until that plot exists.
 
 ## Build status
-- [x] **S1 skeleton** — `repro.py` (determinism + fingerprint), CI, Makefile, pyproject. Repro loop closed (`paper_ready` gate works).
-- [x] **S2 interface** — `retrievers/base.py` (PageEncoding + Retriever protocol + MaxSim) + deterministic mock backend. *Real backends (ColPali/BiPali) pending — need GPU.*
-- [x] **S3 alignment core** — `data/align.py` (`boxes_to_patch_mask`), visually validated on synthetic page (green patches land on red fields). *Real-dataset eyeballing pending data.*
-- [x] **S4 eval math** — `eval/frontier.py` (bootstrap CI, two-proportion z, AUC, dominance) + `eval/pfrr.py`. All pure-logic, tested.
-- [x] **35 CPU tests passing**, `experiments/kill_test.py` thresholds pre-registered (not yet runnable).
+- [x] **S0 premise** — GO. `docs/RELATED_WORK_VERIFIED.md`: intersection empty, not scooped; 7 errors + 7 missing IDs logged.
+- [x] **S1 skeleton + infra** — `repro.py` (determinism + fingerprint), CI, Makefile. **GCP `patchguard-reakon` live; Vertex L4 smoke job SUCCEEDED** (keyless ADC + teardown proven).
+- [x] **S2 backends** — `retrievers/base.py` protocol + MaxSim; `colpali.py` (real, guarded), `bipali.py` (pooled control = 1×1 no-locality grid), mock.
+- [x] **S3 alignment** — `data/align.py` visually validated (green patches land on red fields). *Real-dataset eyeballing pending data.*
+- [x] **S4 eval** — `frontier.py` (bootstrap CI, z-test, AUC, dominance), `pfrr.py`, `killgate.py` (pre-registered gate + `assemble_and_gate`).
+- [x] **S5 attack v0** — `attack/decoder.py` (PatchGridDecoder + text-region-weighted loss), CPU shape/backprop tested.
+- [x] **S8 defense core** — `defense/perturb.py` (flat vs patch-scoped Gaussian, Claim 3) + `localize.py` (oracle).
+- [x] **★ kill test wired** — `experiments/kill_test.py --mock` runs the full pipeline end-to-end → `GO`, writes fingerprinted result. **65 CPU tests passing.**
 
-## Next (needs the GPU stack / data — see GCP plan)
-- [ ] Citation verification pass (§10) — still the true premise gate
-- [ ] S2 real backends: `colpali.py`, `bipali.py` (+ confirm BiPali availability)
-- [ ] S3: run the validator on 50 real docs/dataset once loaders exist
-- [ ] S5: `attack/decoder.py` (v0) with text-region-weighted loss → then the ★ kill test
+## Next (needs GPU + data — everything else is done)
+- [ ] Decoder **training loop** (`attack/train.py`, S6) — write on CPU, run on Vertex
+- [ ] **OCR wiring** in `eval/pfrr` (Tesseract + PaddleOCR) — the real PFRR measurement
+- [ ] **FUNSD download** + run `validate_alignment.py` on 50 real docs (S3 gate)
+- [ ] Swap real ColPali/BiPali into `kill_test.py` real path → **fire the ★ kill test for real**
