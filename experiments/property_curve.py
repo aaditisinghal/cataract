@@ -154,15 +154,25 @@ def main() -> None:
         thr = min(above) if above else None
         print(f"THRESHOLD {ft}: top1>=0.5 above ~{thr}px glyph height" if thr else f"THRESHOLD {ft}: never >=0.5 in sweep")
 
-    # FUNSD as points on the SAME glyph-height axis (real fields, glyph px through the resize)
-    funsd_points = _funsd_points(args, retriever, q, maxsim, rng)
+    from experiments.train_funsd import _gcs_upload
 
-    payload = {"mode": "property_curve", "curve": curve, "funsd_points": funsd_points,
+    def _save(payload):
+        (local_out / "property_curve.json").write_text(json.dumps(payload, indent=2))
+        if str(args.out).startswith("gs://"):
+            _gcs_upload(local_out, args.out)
+
+    payload = {"mode": "property_curve", "curve": curve, "funsd_points": None,
                "fonts": fonts, "n_per_point": args.n, "fingerprint": run_fingerprint()}
-    (local_out / "property_curve.json").write_text(json.dumps(payload, indent=2))
-    if str(args.out).startswith("gs://"):
-        from experiments.train_funsd import _gcs_upload
-        _gcs_upload(local_out, args.out)
+    _save(payload)  # save the curve BEFORE the riskier real-data FUNSD step -> never lose it
+    print("curve saved; running FUNSD points...")
+
+    try:
+        payload["funsd_points"] = _funsd_points(args, retriever, q, maxsim, rng)
+    except Exception as e:
+        import traceback
+        payload["funsd_points"] = {"error": repr(e), "traceback": traceback.format_exc()}
+        print("FUNSD points failed (non-fatal):", repr(e))
+    _save(payload)
     print(f"wrote property_curve.json -> {args.out}")
 
 
