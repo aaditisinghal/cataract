@@ -30,6 +30,10 @@ def main() -> None:
     ap.add_argument("--k", type=int, default=20, help="lineup size (true + k-1 distractors)")
     ap.add_argument("--max-fields", type=int, default=12, help="fields probed per page")
     ap.add_argument("--min-len", type=int, default=3, help="skip trivially-short field text")
+    ap.add_argument("--labels", default="all",
+                    help="restrict PROBED fields to these FUNSD labels (comma list, e.g. 'answer' or "
+                         "'answer,other'); 'all' probes every label. The FAIR real-doc number strips "
+                         "question/header boilerplate. Distractors ALWAYS come from the full corpus.")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
@@ -43,6 +47,9 @@ def main() -> None:
 
     seed_everything(args.seed)
     rng = np.random.default_rng(args.seed)
+    labels_arg = args.labels.strip().lower()
+    # None => probe every label (unchanged behavior); else the set of labels we are allowed to probe.
+    label_filter = None if labels_arg in ("all", "") else {t.strip() for t in labels_arg.split(",") if t.strip()}
     local_out = Path(tempfile.mkdtemp()) if str(args.out).startswith("gs://") else Path(args.out)
     local_out.mkdir(parents=True, exist_ok=True)
 
@@ -80,7 +87,12 @@ def main() -> None:
     by_lenbucket: dict[str, list[int]] = {}
     for pi, (img, fields) in enumerate(pages):
         enc = retriever.encode_page(img)
-        probe_fields = list(rng.permutation(len(fields)))[: args.max_fields]
+        if label_filter is None:
+            # arange-based permutation preserved verbatim so --labels all matches prior behavior.
+            probe_fields = list(rng.permutation(len(fields)))[: args.max_fields]
+        else:
+            elig = np.array([i for i in range(len(fields)) if fields[i].field_type in label_filter])
+            probe_fields = list(rng.permutation(elig))[: args.max_fields] if len(elig) else []
         for fi in probe_fields:
             f = fields[fi]
             # distractors: other real field texts (different from truth), from the corpus
@@ -102,20 +114,25 @@ def main() -> None:
                              "recovered": ranked[0], "top1": bool(hit1), "in_top5": bool(hit5)})
 
     n = len(hits1)
+    probed_labels = "all" if label_filter is None else sorted(label_filter)
     summary = {
         "n_fields": n, "lineup": args.k, "chance": 1.0 / args.k,
-        "top1_acc": float(np.mean(hits1)), "top5_acc": float(np.mean(hits5)),
+        "labels": probed_labels,
+        "top1_acc": float(np.mean(hits1)) if n else 0.0,
+        "top5_acc": float(np.mean(hits5)) if n else 0.0,
         "by_label_top1": {k: float(np.mean(v)) for k, v in by_label.items()},
         "by_length_top1": {k: float(np.mean(v)) for k, v in by_lenbucket.items()},
     }
     print("\n=== FUNSD REAL-DOC TRANSFER ===")
+    print(f"  probed labels: {probed_labels}")
     print(f"  top1={summary['top1_acc']:.3f}  top5={summary['top5_acc']:.3f}  (chance {summary['chance']:.3f}, n={n})")
     print(f"  by label : {summary['by_label_top1']}")
     print(f"  by length: {summary['by_length_top1']}")
     for r in rows[:12]:
         print(f"  [{r['label']:<8}] true {r['true'][:24]!r:<26} -> {r['recovered'][:24]!r} {'OK' if r['top1'] else 'x'}")
 
-    payload = {"mode": "funsd_transfer", "summary": summary, "rows": rows, "fingerprint": run_fingerprint()}
+    payload = {"mode": "funsd_transfer", "labels": probed_labels, "summary": summary, "rows": rows,
+               "fingerprint": run_fingerprint()}
     (local_out / "funsd_transfer.json").write_text(json.dumps(payload, indent=2))
     if str(args.out).startswith("gs://"):
         _gcs_upload(local_out, args.out)
