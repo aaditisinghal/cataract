@@ -214,6 +214,27 @@ distinctiveness/size. Caveat: FUNSD probes mix real PII with form boilerplate �
 - **Mechanism:** name-value queries and topic queries occupy **separable subspaces**; global P collapses
   the PII direction, spares the content direction (isotropic noise can't). Reconciles with holographic
   bleed: local defense impossible, but a **global learned anisotropic transform** works.
+- **⚠️ but this privacy is NON-ADAPTIVE only — see §4.13, which breaks it.**
+
+### 4.13 ★★ ADAPTIVE attacker BREAKS the learned defense (adaptive_attack, n_test=40, A100, git 8cb6b45)
+The decisive security test: the attacker **KNOWS the public P** (Kerckhoffs). Four white-box strategies vs P(λ=5).
+| Strategy | recovery | chance | breaks P? |
+|---|---|---|---|
+| baseline: undefended dict | 1.000 | 0.005 | — (the leak) |
+| baseline: non-adaptive dict on P | 0.000 | 0.005 | — (P's original "privacy 1.00") |
+| B1a distillation probe on P(patch) | 0.000 | 0.004 | no\* (underpowered: 64 fit cards, 240-way) |
+| **B1b inverse-learning (P⁻¹)** | **1.000** | 0.005 | **YES** — recon cosine **0.998**, 65 536 pairs |
+| B1c adaptive-query (anchored grad) | 0.000 | 0.005 | no |
+| B1d correlation (via retained topic) | 0.000 | 0.004 | no (topic_recovery 1.00; synthetic fields independent) |
+- **VERDICT: P BROKEN.** RedactionProjection is a residual transform `y = x + gate·MLP(x)` → **near-bijective →
+  invertible**. An attacker trains `P⁻¹` from (P(patch), patch) pairs (P is public), reconstructs the original
+  patches at **cosine 0.998**, and the dictionary attack returns to **1.000**.
+- **Consequence:** the learned defense defeats only the **non-adaptive** MaxSim attacker → **privacy must be
+  reported attack-relative, not absolute**. A real defense must be **provably information-destroying** (lossy /
+  certified), not an invertible reshaping. *(B1a's 0.000 is underpowered — 64 cards for 240 classes — so B1b is
+  the definitive breaker, not evidence of removal.)*
+- **Efficiency (CPU, efficiency_bench):** P applies at **0.62 µs/patch (0.64 ms/page @ 1030)**, **+0 B** stored,
+  **0** query-path overhead, 131 K params (527 KB one-time).
 
 ---
 
@@ -228,7 +249,8 @@ distinctiveness/size. Caveat: FUNSD probes mix real PII with form boilerplate �
 | Erasure by patch deletion impossible | ✅ strong negative | never erased; Article 17 |
 | Local (patch-scoped) defense impossible | ✅ (refutes orig Claim 3) | patch-scoped priv 0.00 |
 | Generalizes across backbones | ✅ | ColQwen2 leak 0.975, bleed 90%→0.83 |
-| Learned global anisotropic defense works & beats noise | ✅ (separable regime) | priv 1.00 @ util 0.95; dom +0.74 |
+| Learned global anisotropic defense works & beats noise | ⚠️ **non-adaptive only** | priv 1.00 @ util 0.95 (non-adaptive); dom +0.74 |
+| **Adaptive attacker (knows P) BREAKS it** | ✅ strong negative | inverse-learning recon **0.998** → recovery **1.00** |
 
 ---
 
@@ -247,9 +269,10 @@ killgate,reconstruct}.py`, `repro.py`. ~90 CPU tests.
 
 ## 7. Open questions / NOT yet tested (the honest to-do)
 
-1. **⚠️ ADAPTIVE attacker vs RedactionProjection** — privacy=1.00 is against a NON-adaptive attacker.
-   An attacker who KNOWS P (invert P, adapt queries, exploit content↔PII correlation) is the security-
-   venue bar. **Decisive untested experiment.** Until this, the defense claim is unproven.
+1. **✅ ADAPTIVE attacker vs RedactionProjection — DONE (§4.13).** P is **INVERTIBLE**: inverse-learning
+   reconstructs patches at cosine **0.998** → recovery **1.00**. The defense is **non-adaptive-only**.
+   → New open item: a **provably information-destroying / certified** defense (lossy P + calibrated noise
+   with an ε bound) — the honest next design, motivated by this negative result.
 2. **Real-retrieval utility** — replace synthetic topic-Recall@1 with **ViDoRe NDCG@5** on a ColPali+P index.
 3. **The fundamental floor** — the defense works where PII is *incidental*; characterize the regime where
    PII IS the retrieval content (find-by-name) and no learned defense can help.
@@ -266,5 +289,7 @@ killgate,reconstruct}.py`, `repro.py`. ~90 CPU tests.
 - Attack: **name recovery 1.00** from a 1000-lineup; ColQwen2 **0.975** (generalizes).
 - Multi-vector vs pooled: **1.00 vs 0.08**, McNemar **55/0**; but matched-bytes → **capacity-driven**.
 - Holographic: delete **33% of patches → still 1.00**; erasure impossible.
-- Naive local defense: **0.00 privacy**. Learned defense: **priv 1.00 @ util 0.95**, dominates noise by **+0.74**.
+- Naive local defense: **0.00 privacy**. Learned defense: **priv 1.00 @ util 0.95** (non-adaptive), dominates noise by **+0.74**.
+- **★ Adaptive attacker BREAKS the learned defense: P is invertible (P⁻¹ recon cosine 0.998 → recovery 1.00).**
+  Privacy is **non-adaptive-only**; a real defense must be **information-destroying**, not an invertible reshaping.
 - Real docs (FUNSD): weak (**0.19** top-1), scales with glyph size (≤10px 0.11 → >16px 0.46).
