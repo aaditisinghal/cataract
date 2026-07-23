@@ -94,3 +94,41 @@ echo "### local make_figures (D3) — reads every JSON above, writes paper/figur
 python3 -m experiments.make_figures --runs "$RUNS" --figdir paper/figures
 
 echo "DONE. Figures in paper/figures/ ; per-experiment JSONs under ${RUNS}/."
+
+# ==================================================================================================
+# PHASE 3 — COMPLETION-PLAN ADDITIONS (appended; the base reproduction above is unchanged).
+#   New experiments that finalize the attack breadth + the constructive (information-DESTROYING)
+#   defense: B6 certified/nullspace defense + its provable bound, A3 real-corpus (CORD) transfer,
+#   A6 ghost vectors, B8 real-doc defense transfer, A7 transferable (proxy-encoder) attack.
+#   Because the make_figures tail above runs before this block, we RE-AGGREGATE + RE-DRAW figures at
+#   the very end so the paper figures include every PHASE-3 JSON as well.
+# ==================================================================================================
+
+# --- B6 the constructive answer to §4.13: information-DESTROYING (nullspace) defense vs inverse attack
+exec_exp experiments.certified_defense      "certified"        --ks 0,2,4,8,16,32 --n-train 64 --n-test 40
+# --- A3 real-corpus transfer: the retrieval attack on CORD receipts (financial PII), glyph-height axis
+exec_exp experiments.realcorpus_transfer    "realcorpus-cord"  --corpus cord --n-pages 60 --k 20
+# --- A6 ghost vectors: soft-deleted multi-vectors remain physically present + attackable
+exec_exp experiments.ghost_vectors          "ghost"            --n 40 --distractors 200 --font-size 34
+# --- B6 certified bound: a provable privacy (epsilon) bound on the nullspace defense
+exec_exp experiments.certified_bound        "certbound"        --ks 0,2,4,8,16,32 --n 40
+# --- B8 real-doc defense transfer: nullspace P trained on synthetic, evaluated on real FUNSD
+exec_exp experiments.defense_transfer_funsd "deftransfer"      --data "$FUNSD" --defense nullspace --n-train 64 --n-pages 40
+# --- A7 transfer attack: attack a ColPali index with a proxy (different) encoder's queries
+exec_exp experiments.transfer_attack        "transferatk"      --n 40 --distractors 200 --font-size 34
+# cold alternative (single self-deleting VM per job): scripts/12_train_vm.sh us-central1-a a100 <job>
+
+# --- multi-seed example for the PHASE-3 headline experiments (SEEDS defaults to "0 1 2 3 4") ----------
+#   Uncomment to run the new headline experiments across seeds, then aggregate to mean +/- 95% CI as in
+#   PHASE 1/2 above (Holm-Bonferroni over the claim family, COMPLETION_PLAN A2).
+# for SEED in $SEEDS; do
+#   exec_exp experiments.certified_defense "certified-seed${SEED}"   --ks 0,2,4,8,16,32 --n-train 64 --n-test 40 --seed "$SEED"
+#   exec_exp experiments.transfer_attack   "transferatk-seed${SEED}" --n 40 --distractors 200 --font-size 34 --seed "$SEED"
+# done
+# exec_agg "agg-certified"   --runs "$RUNS" --metric-keys sweep.inverse_recovery,sweep.utility_topic_recall
+# exec_agg "agg-transferatk" --runs "$RUNS" --metric-keys summary.name.top1_acc
+
+# --- re-aggregate + re-draw figures so the paper figures include the PHASE-3 JSONs ------------------
+echo "### local make_figures (refresh) — re-read every JSON incl. PHASE-3, rewrite paper/figures/*"
+python3 -m experiments.make_figures --runs "$RUNS" --figdir paper/figures
+echo "DONE (with PHASE 3). Figures in paper/figures/ ; per-experiment JSONs under ${RUNS}/."
