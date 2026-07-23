@@ -78,6 +78,17 @@ tee-to-serial `exec` broke docker install (reverted).
 (8×8px latent cell vs 1–2px strokes) and its natural-image prior hallucinates. The *retrieval*
 interface is the attack.
 
+**Exact generative-line training metrics (dead-end, for the record):**
+- **v0 decoder** (149 real FUNSD pages, A100, 40 epochs): loss total **2.877 → 1.041** (2.76×), l1
+  0.386→0.055, field_l1 **0.361 → 0.131**, lpips 0.688→0.331. (Loss fell — decoder *learns* — but
+  reconstruction was blurry structure, PFRR ≈ 0.008.)
+- **v1 diffusion** (85d59b8, white-collapse): final total 1.107, l1 0.053, field_l1 0.131, lpips 0.40,
+  latent 0.348, **g_adv 3.683, d 0.006** (discriminator saturated → adversarial signal dead).
+- **v2 diffusion** (3fa35fb, ink-weighted + R1): final total 3.026, l1 0.07, field_l1 0.254, lpips 0.42,
+  latent 0.332, **g_adv 0.032, d 2.058** (GAN balanced → ink placed at text locations, still no glyphs).
+- **Kill test** (382ac89): decision **STOP**, PFRR_colpali = PFRR_bipali = **0.008** (identical floor).
+- **Vertex smoke job**: `SMOKE OK: NVIDIA L4 | torch 2.3.0+cu121` (infra validated; keyless ADC + teardown).
+
 ---
 
 ## 4. COMPLETE RESULTS (every metric; bootstrap 95% CI; chance noted)
@@ -104,6 +115,15 @@ interface is the attack.
 - **same-name-different-template MaxSim = 1.00** (the fixed-layout confound is refuted; glyph content)
 - *(first, fixed-layout probe reported MLP 0.53–0.78 — INFLATED by deterministic-render duplicate
   leakage; superseded by the de-confounded 0.33.)*
+
+**First GREENLIGHT probe (aff7b78, FIXED layout — full per-font, superseded but recorded):**
+| font | MLP name | MaxSim name / id_no / dob |
+|---|---|---|
+| 12px | 0.533 | 1.00 / 1.00 / 0.99 |
+| 24px | 0.783 | 1.00 / 0.99 / 0.98 |
+| 48px | 0.550 | 1.00 / 0.99 / 0.99 |
+Decision = `GREENLIGHT_ATTACK`; positive-control 1.00, shuffle 0.00. (MaxSim recovery robust across
+fonts; the MLP numbers here are the inflated ones — use §4.3 de-confounded values for the paper.)
 
 ### 4.4 Claim 1 — multi-vector vs pooled (retrieval attack, n=60, chance 0.005)
 | field | ColPali (multi-vector) | BiPali (pooled) | Δ | McNemar (ColPali-only / BiPali-only) |
