@@ -57,6 +57,10 @@ case "$JOB" in
     OUT="gs://patchguard-reakon-artifacts/runs/claim1-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.claim1 --out ${OUT} --n 60 --distractors 200 --font-size 24"
     ;;
+  defense)
+    OUT="gs://patchguard-reakon-artifacts/runs/defense-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.defense_frontier --out ${OUT} --n 50 --distractors 200 --font-size 24"
+    ;;
   retrieval)
     OUT="gs://patchguard-reakon-artifacts/runs/retrieval-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.retrieval_attack --out ${OUT} --n 40 --distractors 999 --font-size 34"

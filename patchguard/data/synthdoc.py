@@ -33,6 +33,14 @@ _FIRST = ["JAMES", "MARIA", "ROBERT", "LINDA", "MICHAEL", "SARAH", "DAVID", "EMI
 _LAST = ["SMITH", "JOHNSON", "WILLIAMS", "BROWN", "JONES", "GARCIA", "MILLER", "DAVIS",
          "RODRIGUEZ", "MARTINEZ", "HERNANDEZ", "LOPEZ", "GONZALEZ", "WILSON", "ANDERSON"]
 
+# non-PII content (issuing office) — used as the legitimate retrieval topic in the defense frontier
+_CITIES = ["SPRINGFIELD", "FRANKLIN", "GEORGETOWN", "MADISON", "CLINTON", "SALEM", "AUBURN",
+           "BRISTOL", "FAIRVIEW", "RIVERSIDE", "OAKLAND", "ASHLAND", "MILTON", "NEWPORT", "DOVER"]
+
+
+def _topic(rng: np.random.Generator) -> str:
+    return f"DISTRICT {int(rng.integers(10, 99))} {rng.choice(_CITIES)} OFFICE"
+
 
 def _font(size: int, family: int = 0):
     from PIL import ImageFont
@@ -54,6 +62,7 @@ def _pii(rng: np.random.Generator) -> dict[str, str]:
 def generate_id_card(
     seed: int, size: tuple[int, int] = (448, 448), value_font_size: int = 34,
     vary: bool = True, fixed_name: str | None = None, fixed_pii: dict[str, str] | None = None,
+    with_topic: bool = False,
 ) -> tuple[np.ndarray, list[AnnotatedField]]:
     from PIL import Image, ImageDraw
 
@@ -93,6 +102,14 @@ def generate_id_card(
         fields.append(AnnotatedField(field_type=key, text=val, box=(float(x0), float(y0), float(x1), float(y1))))
         y = vy + vfs + spacing
 
+    if with_topic:  # non-PII issuing-office line, near the bottom -> the legitimate retrieval topic
+        topic = _topic(rng)
+        ty = min(y, size[1] - 40)
+        d.text((margin, ty - 18), "ISSUING OFFICE", fill=(95, 95, 95), font=label_font)
+        d.text((margin, ty), topic, fill=(15, 15, 15), font=_font(max(14, vfs - 6), fam))
+        x0, y0, x1, y1 = d.textbbox((margin, ty), topic, font=_font(max(14, vfs - 6), fam))
+        fields.append(AnnotatedField(field_type="office", text=topic, box=(float(x0), float(y0), float(x1), float(y1))))
+
     arr = np.array(img).astype(np.int16)
     if vary:
         arr = arr + rng.integers(-6, 7, arr.shape)  # light pixel noise so same content != identical
@@ -101,9 +118,10 @@ def generate_id_card(
 
 def generate_id_cards(
     n: int, seed: int = 0, size: tuple[int, int] = (448, 448), value_font_size: int = 34,
-    vary: bool = True,
+    vary: bool = True, with_topic: bool = False,
 ) -> list[tuple[np.ndarray, list[AnnotatedField]]]:
-    return [generate_id_card(seed * 10_000 + i, size, value_font_size, vary=vary) for i in range(n)]
+    return [generate_id_card(seed * 10_000 + i, size, value_font_size, vary=vary, with_topic=with_topic)
+            for i in range(n)]
 
 
 def generate_same_name_cards(

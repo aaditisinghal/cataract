@@ -14,6 +14,6 @@ OUT="gs://patchguard-reakon-artifacts/runs/${SUB}-${TAG}"
 
 echo "==> exec ${MOD} on ${VM} -> ${OUT}"
 "$GC" compute ssh "$VM" --zone="$ZONE" --quiet --command="\
-  docker run --gpus all -v /opt/hfcache:/root/.cache/huggingface --entrypoint python ${IMG} \
+  sudo docker run --gpus all -v /opt/hfcache:/root/.cache/huggingface --entrypoint python ${IMG} \
   -m ${MOD} --out ${OUT} $*" 2>&1 | tail -40
 echo "==> done. result: gcloud storage cat ${OUT}/*.json"
