@@ -13,7 +13,7 @@ ENV CUBLAS_WORKSPACE_CONFIG=:4096:8 \
 WORKDIR /app
 
 # System libs for PIL image IO + Tesseract OCR (PFRR measurement).
-RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 git tesseract-ocr \
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 git tesseract-ocr fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 # Our package (core dep = numpy) + the model/attack/runtime stack, WITHOUT torch (base provides it).
