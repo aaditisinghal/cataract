@@ -49,6 +49,10 @@ case "$JOB" in
     OUT="gs://patchguard-reakon-artifacts/runs/funsd-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.funsd_transfer --data gs://patchguard-reakon-data/funsd --out ${OUT} --n-pages 60 --k 20 --max-fields 12"
     ;;
+  curve)
+    OUT="gs://patchguard-reakon-artifacts/runs/curve-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.property_curve --out ${OUT} --n 30 --fonts 8,10,12,14,16,20,24,32,40,48 --distractors 200 --anagrams 8"
+    ;;
   retrieval)
     OUT="gs://patchguard-reakon-artifacts/runs/retrieval-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.retrieval_attack --out ${OUT} --n 40 --distractors 999 --font-size 34"

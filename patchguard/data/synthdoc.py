@@ -53,7 +53,7 @@ def _pii(rng: np.random.Generator) -> dict[str, str]:
 
 def generate_id_card(
     seed: int, size: tuple[int, int] = (448, 448), value_font_size: int = 34,
-    vary: bool = True, fixed_name: str | None = None,
+    vary: bool = True, fixed_name: str | None = None, fixed_pii: dict[str, str] | None = None,
 ) -> tuple[np.ndarray, list[AnnotatedField]]:
     from PIL import Image, ImageDraw
 
@@ -75,7 +75,7 @@ def generate_id_card(
     d.rectangle([0, 0, size[0], header_h], fill=(35, 70, 130))
     d.text((margin, header_h // 2 - 12), "IDENTITY CARD", fill=(255, 255, 255), font=_font(24, fam))
 
-    pii = _pii(rng)
+    pii = dict(fixed_pii) if fixed_pii is not None else _pii(rng)
     if fixed_name is not None:
         pii["name"] = fixed_name
     label_font = _font(15, fam)
