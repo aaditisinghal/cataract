@@ -33,6 +33,10 @@ case "$JOB" in
     OUT="gs://patchguard-reakon-artifacts/runs/diffusion-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.train_diffusion --data gs://patchguard-reakon-data/funsd --out ${OUT} --epochs 80 --limit 149 --dump 6"
     ;;
+  overfit)
+    OUT="gs://patchguard-reakon-artifacts/runs/overfit-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.overfit_probe --data gs://patchguard-reakon-data/funsd --out ${OUT} --n 8 --epochs 800 --resolution 768 --channels 256"
+    ;;
   *)
     OUT="gs://patchguard-reakon-artifacts/runs/decoder-gce-${TAG}"
     CMD="docker run --gpus all ${IMG} --data gs://patchguard-reakon-data/funsd --split training_data --out ${OUT} --epochs 40 --limit 200 --granularity word"
