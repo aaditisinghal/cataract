@@ -31,6 +31,7 @@ RUN pip install --no-cache-dir -e . \
         "pytesseract" \
         "diffusers==0.31.0" \
         "accelerate" \
+        "qwen-vl-utils" \
     && (pip install --no-cache-dir lpips || true)
 
 # Default: show the entrypoint help.

@@ -69,6 +69,14 @@ case "$JOB" in
     OUT="gs://patchguard-reakon-artifacts/runs/wrongpage-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.control_wrongpage --out ${OUT} --n 50 --distractors 200 --font-size 24"
     ;;
+  crossmodel)
+    OUT="gs://patchguard-reakon-artifacts/runs/crossmodel-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.cross_model --retriever colqwen2 --out ${OUT} --n 40 --distractors 200 --font-size 24"
+    ;;
+  claim1b)
+    OUT="gs://patchguard-reakon-artifacts/runs/claim1b-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.claim1b --out ${OUT} --n 50 --distractors 200 --font-size 24"
+    ;;
   retrieval)
     OUT="gs://patchguard-reakon-artifacts/runs/retrieval-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.retrieval_attack --out ${OUT} --n 40 --distractors 999 --font-size 34"
