@@ -56,7 +56,10 @@ def main() -> None:
 
     retriever = ColPaliRetriever(model_name=args.model)
     vae = DiffusersVAEAdapter(model=args.vae, device=device, dtype="float32")
-    ds = build_dataset(samples, retriever, TrainConfig(out_size=out_size, inside_weight=8.0))
+    # ink_boost weights the loss by pixel darkness -> forces ink reproduction, not a blank page
+    ds = build_dataset(
+        samples, retriever, TrainConfig(out_size=out_size, inside_weight=10.0, ink_boost=20.0)
+    )
     inverter = DiffusionInverter(dim=ds.dim, grid=ds.grid, vae=vae, latent_size=(64, 64))
     disc = PatchDiscriminator()
     cfg = DiffusionTrainConfig(out_size=out_size, epochs=args.epochs, ckpt_dir=str(local_out))

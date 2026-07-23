@@ -21,7 +21,12 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from patchguard.attack.decoder import PatchGridDecoder, pixel_weight_from_fields, reconstruction_loss
+from patchguard.attack.decoder import (
+    PatchGridDecoder,
+    ink_weight_map,
+    pixel_weight_from_fields,
+    reconstruction_loss,
+)
 from patchguard.data.fields import Box
 from patchguard.repro import run_fingerprint, seed_everything
 from patchguard.retrievers.base import PageEncoding, Retriever
@@ -38,6 +43,7 @@ class TrainConfig:
     w_field: float = 5.0
     w_lpips: float = 1.0
     inside_weight: float = 8.0
+    ink_boost: float = 0.0  # >0 adds darkness-weighted loss (fixes white-collapse on documents)
     seed: int = 0
     device: str | None = None
     ckpt_dir: str = "results/decoder"
@@ -63,6 +69,7 @@ class PatchReconDataset(Dataset):
         out_size: tuple[int, int],
         resize_policy: str,
         inside_weight: float,
+        ink_boost: float = 0.0,
     ) -> None:
         if not encodings:
             raise ValueError("empty dataset")
@@ -71,10 +78,12 @@ class PatchReconDataset(Dataset):
         self.dim = encodings[0].dim
         self._patches = [torch.from_numpy(e.image_patches()).float() for e in encodings]
         self._targets = [_image_to_target(im, out_size) for im in images]
-        self._weights = [
-            pixel_weight_from_fields(fb, os_, out_size, resize_policy, inside_weight)[0]
-            for fb, os_ in zip(field_boxes, orig_sizes)
-        ]
+        self._weights = []
+        for fb, os_, tgt in zip(field_boxes, orig_sizes, self._targets):
+            w = pixel_weight_from_fields(fb, os_, out_size, resize_policy, inside_weight)[0]
+            if ink_boost > 0:
+                w = w + ink_weight_map(tgt, ink_boost)  # amplify ink pixels
+            self._weights.append(w)
 
     def __len__(self) -> int:
         return len(self._patches)
@@ -96,6 +105,7 @@ def build_dataset(
         out_size=cfg.out_size,
         resize_policy=encs[0].resize_policy,
         inside_weight=cfg.inside_weight,
+        ink_boost=cfg.ink_boost,
     )
 
 

@@ -117,6 +117,17 @@ def reconstruction_loss(
     return total, comps
 
 
+def ink_weight_map(target: torch.Tensor, ink_boost: float = 15.0) -> torch.Tensor:
+    """Per-pixel loss weight from target darkness (1 - luminance).
+
+    The fix for white-collapse: documents are ~90% white, so unweighted losses reward a blank page.
+    Weighting by how dark each target pixel is forces the attacker to reproduce INK, not paper.
+    target: (..., 3, H, W) in [0,1] -> (..., 1, H, W).
+    """
+    lum = target.mean(dim=-3, keepdim=True)
+    return ink_boost * (1.0 - lum).clamp(0.0, 1.0)
+
+
 def pixel_weight_from_fields(
     fields_boxes: list[Box],
     orig_size: tuple[int, int],

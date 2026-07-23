@@ -77,6 +77,26 @@ def _samples(n=6, seed=0):
     return out
 
 
+def test_ink_weight_upweights_dark_pixels():
+    from patchguard.attack.decoder import ink_weight_map
+
+    target = torch.ones(1, 3, 8, 8)  # all white
+    target[:, :, 0:4, :] = 0.0  # top half black (ink)
+    w = ink_weight_map(target, ink_boost=10.0)
+    assert w.shape == (1, 1, 8, 8)
+    assert float(w[0, 0, 0, 0]) == 10.0  # black -> full boost
+    assert float(w[0, 0, 7, 7]) == 0.0  # white -> zero ink weight
+
+
+def test_ink_boost_changes_dataset_weights():
+    r = MockRetriever(grid=(4, 4), input_size=(64, 64), dim=8, n_prefix_tokens=1)
+    s = _samples(3)
+    plain = build_dataset(s, r, TrainConfig(out_size=(64, 64), ink_boost=0.0))
+    inked = build_dataset(s, r, TrainConfig(out_size=(64, 64), ink_boost=20.0))
+    # ink weighting must raise total loss-weight mass (dark field region gets amplified)
+    assert float(inked[0][2].sum()) > float(plain[0][2].sum())
+
+
 def test_train_diffusion_runs_and_checkpoints(tmp_path):
     r = MockRetriever(grid=(4, 4), input_size=(64, 64), dim=8, n_prefix_tokens=1)
     ds = build_dataset(_samples(6), r, TrainConfig(out_size=(64, 64), inside_weight=8.0))

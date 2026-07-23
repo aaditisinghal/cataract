@@ -157,15 +157,16 @@ class DiffusersVAEAdapter:
 @dataclass
 class DiffusionTrainConfig:
     out_size: tuple[int, int] = (512, 512)
-    epochs: int = 60
+    epochs: int = 100
     batch_size: int = 4
     lr_g: float = 1e-4
-    lr_d: float = 4e-4
+    lr_d: float = 2e-4  # lower than G (the discriminator was saturating: d~0)
     w_latent: float = 1.0
     w_l1: float = 1.0
-    w_field: float = 5.0
+    w_field: float = 10.0  # stronger field emphasis
     w_lpips: float = 1.0
-    w_adv: float = 0.1
+    w_adv: float = 0.5  # stronger anti-blur signal
+    r1_gamma: float = 1.0  # R1 gradient penalty on real -> stabilizes D, stops saturation
     adv_warmup_epochs: int = 3  # let the projector find structure before the discriminator kicks in
     seed: int = 0
     device: str | None = None
@@ -208,7 +209,17 @@ def train_diffusion(
 
             if adv_on:
                 optD.zero_grad()
-                d_loss = d_hinge_loss(discriminator(target), discriminator(fake.detach()))
+                real_in = target
+                if cfg.r1_gamma > 0:
+                    real_in = target.detach().requires_grad_(True)
+                real_logits = discriminator(real_in)
+                d_loss = d_hinge_loss(real_logits, discriminator(fake.detach()))
+                if cfg.r1_gamma > 0:
+                    grad_real = torch.autograd.grad(
+                        real_logits.sum(), real_in, create_graph=True
+                    )[0]
+                    r1 = grad_real.pow(2).flatten(1).sum(1).mean()
+                    d_loss = d_loss + (cfg.r1_gamma / 2.0) * r1
                 d_loss.backward()
                 optD.step()
             else:
