@@ -111,9 +111,11 @@ def main() -> None:
         q(nm)  # warm cache
 
     def field_feat(enc, box, img_wh):
-        mask = boxes_to_patch_mask([box], img_wh, enc.grid, enc.input_size, enc.resize_policy,
-                                   0.0, enc.n_prefix_tokens)
-        return enc.patches[mask].mean(0) if mask.any() else enc.image_patches().mean(0)
+        # grid-only mask (length gh*gw) aligned with image_patches(); avoids the trailing
+        # instruction tokens (ColPali: 1030 total = 1024 image + 6 suffix).
+        mask = boxes_to_patch_mask([box], img_wh, enc.grid, enc.input_size, enc.resize_policy, 0.0, 0)
+        imgp = enc.image_patches()
+        return imgp[mask].mean(0) if mask.any() else imgp.mean(0)
 
     per_font = {}
     for font in fonts:
