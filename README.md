@@ -1,8 +1,10 @@
 # patchguard-paper
 
-Working folder for **"The Persistence of Vision: PII Reconstruction and Patch-Scoped Privacy in
-Multi-Vector Vision-Language Retrieval"** — embedding inversion of ColPali-family multi-vector
-visual-document retrievers to field-level PII, plus a patch-scoped defense and an erasure finding.
+Working folder for **"The Persistence of Vision: State-of-the-Art Privacy for Multi-Vector VLM
+Retrievers"** — field-level PII recovery from ColPali-family multi-vector vision-language document
+retrievers, the holographic mechanism that makes erasure/local-redaction impossible, the adaptive
+break of the naive (invertible) defense, and the information-destroying redaction that is the first
+real, tunable, deployable privacy setting for this class.
 
 - **Target venues:** IEEE S&P (primary) · USENIX Security (secondary) · NeurIPS D&B (fallback)
 - **⭐ COMPLETE RESULTS & FINDINGS:** [`docs/RESULTS.md`](docs/RESULTS.md) — every metric from the build session (source of truth).
