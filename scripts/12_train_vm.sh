@@ -45,6 +45,10 @@ case "$JOB" in
     OUT="gs://patchguard-reakon-artifacts/runs/probe-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.patch_probe --out ${OUT} --n 300 --k 8 --fonts 12,24,48"
     ;;
+  retrieval)
+    OUT="gs://patchguard-reakon-artifacts/runs/retrieval-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.retrieval_attack --out ${OUT} --n 40 --distractors 999 --font-size 34"
+    ;;
   *)
     OUT="gs://patchguard-reakon-artifacts/runs/decoder-gce-${TAG}"
     CMD="docker run --gpus all ${IMG} --data gs://patchguard-reakon-data/funsd --split training_data --out ${OUT} --epochs 40 --limit 200 --granularity word"
