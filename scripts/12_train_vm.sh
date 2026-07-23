@@ -53,6 +53,10 @@ case "$JOB" in
     OUT="gs://patchguard-reakon-artifacts/runs/curve-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.property_curve --out ${OUT} --n 30 --fonts 8,10,12,14,16,20,24,32,40,48 --distractors 200 --anagrams 8"
     ;;
+  claim1)
+    OUT="gs://patchguard-reakon-artifacts/runs/claim1-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.claim1 --out ${OUT} --n 60 --distractors 200 --font-size 24"
+    ;;
   retrieval)
     OUT="gs://patchguard-reakon-artifacts/runs/retrieval-${TAG}"
     CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.retrieval_attack --out ${OUT} --n 40 --distractors 999 --font-size 34"
