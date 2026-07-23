@@ -5,6 +5,7 @@ Multi-Vector Vision-Language Retrieval"** — embedding inversion of ColPali-fam
 visual-document retrievers to field-level PII, plus a patch-scoped defense and an erasure finding.
 
 - **Target venues:** IEEE S&P (primary) · USENIX Security (secondary) · NeurIPS D&B (fallback)
+- **⭐ COMPLETE RESULTS & FINDINGS:** [`docs/RESULTS.md`](docs/RESULTS.md) — every metric from the build session (source of truth).
 - **START HERE — master plan (0→100):** [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md) — the execution roadmap + gates.
 - **Full protocol (the science):** [`docs/RESEARCH_PROTOCOL.md`](docs/RESEARCH_PROTOCOL.md) — v1.1, revised.
 - **Compute plan (the infra):** [`docs/GCP_COMPUTE_PLAN.md`](docs/GCP_COMPUTE_PLAN.md) — $25k GCP credits, Vertex ephemeral jobs.
