@@ -43,7 +43,11 @@ case "$JOB" in
     ;;
   probe)
     OUT="gs://patchguard-reakon-artifacts/runs/probe-${TAG}"
-    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.patch_probe --out ${OUT} --n 300 --k 8 --fonts 12,24,48"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.patch_probe --out ${OUT} --n 150 --k 8 --fonts 12,34"
+    ;;
+  funsd)
+    OUT="gs://patchguard-reakon-artifacts/runs/funsd-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.funsd_transfer --data gs://patchguard-reakon-data/funsd --out ${OUT} --n-pages 60 --k 20 --max-fields 12"
     ;;
   retrieval)
     OUT="gs://patchguard-reakon-artifacts/runs/retrieval-${TAG}"
@@ -91,7 +95,7 @@ echo "==> results -> ${OUT}"
   --image-project=deeplearning-platform-release \
   --boot-disk-size=120GB \
   --scopes=cloud-platform \
-  --max-run-duration=3000s \
+  --max-run-duration=3900s \
   --instance-termination-action=DELETE \
   --metadata-from-file=startup-script=<(printf '%s' "$STARTUP") \
   --labels=project=patchguard,phase=s6-${JOB}-gce

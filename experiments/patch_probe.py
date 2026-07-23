@@ -135,18 +135,13 @@ def main() -> None:
                 if f.field_type == "name":
                     Xname.append(feat)
                     yname.append(name_to_idx[f.text])
-                # MaxSim discrimination: true vs k-1 same-format distractors
+                # MaxSim discrimination — NAME only (cached pool, cheap). id/dob MaxSim recovery is
+                # covered definitively by experiments/retrieval_attack.py; doing it per-card here with
+                # fresh-encoded distractors is what blew the runtime budget.
                 if f.field_type == "name":
-                    pool = [n for n in name_pool if n != f.text]
-                    distr = list(rng.choice(pool, args.k - 1, replace=False))
-                elif f.field_type == "id_no":
-                    distr = [f"{int(rng.integers(10_000_000, 99_999_999))}" for _ in range(args.k - 1)]
-                else:  # dob
-                    distr = [f"{int(rng.integers(1,13)):02d}/{int(rng.integers(1,29)):02d}/{int(rng.integers(1950,2005))}"
-                             for _ in range(args.k - 1)]
-                cands = [f.text] + distr
-                scores = [maxsim(q(c), enc.patches) for c in cands]
-                maxsim_hit[f.field_type].append(int(np.argmax(scores) == 0))
+                    distr = list(rng.choice([n for n in name_pool if n != f.text], args.k - 1, replace=False))
+                    scores = [maxsim(q(c), enc.patches) for c in [f.text] + distr]
+                    maxsim_hit["name"].append(int(np.argmax(scores) == 0))
 
         acc_name = _train_probe(Xname, yname, 240, seed=args.seed)
         acc_type = _train_probe(Xtype, ytype, 3, seed=args.seed)  # positive control
@@ -159,7 +154,7 @@ def main() -> None:
             "mlp_name_acc": acc_name,
             "positive_control_type_acc": acc_type,
             "shuffle_name_acc": acc_shuffle,
-            "maxsim_acc": {ft: float(np.mean(v)) for ft, v in maxsim_hit.items()},
+            "maxsim_acc": {"name": float(np.mean(maxsim_hit["name"])) if maxsim_hit["name"] else 0.0},
             "maxsim_chance": 1.0 / args.k,
         }
         print(f"font {font}: name_classify_acc={acc_name:.3f} (chance {1/240:.4f}) | pos_ctrl(type,shuffled-order)={acc_type:.3f} "
