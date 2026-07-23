@@ -119,7 +119,9 @@ def main() -> None:
 
     per_font = {}
     for font in fonts:
-        cards = generate_id_cards(args.n, seed=1000 + font, value_font_size=font)
+        # vary=True: font family/size jitter, position jitter, SHUFFLED field order (decouples
+        # field-type from position), bg tint, pixel noise -> kills the fixed-template confounds.
+        cards = generate_id_cards(args.n, seed=1000 + font, value_font_size=font, vary=True)
         Xname, yname = [], []              # trained probe: name identity from name-field tokens
         Xtype, ytype = [], []              # positive control: field-type from field tokens
         maxsim_hit = {"name": [], "id_no": [], "dob": []}
@@ -160,8 +162,22 @@ def main() -> None:
             "maxsim_acc": {ft: float(np.mean(v)) for ft, v in maxsim_hit.items()},
             "maxsim_chance": 1.0 / args.k,
         }
-        print(f"font {font}: name_acc={acc_name:.3f} (chance {1/240:.4f}) | pos_ctrl(type)={acc_type:.3f} "
-              f"| shuffle={acc_shuffle:.3f} | maxsim={per_font[font]['maxsim_acc']}")
+        print(f"font {font}: name_classify_acc={acc_name:.3f} (chance {1/240:.4f}) | pos_ctrl(type,shuffled-order)={acc_type:.3f} "
+              f"| label_shuffle={acc_shuffle:.3f} | maxsim_discrim={per_font[font]['maxsim_acc']}")
+
+    # --- same-name-different-template control: does MaxSim recover a FIXED name across varied layouts? ---
+    from patchguard.data.synthdoc import generate_same_name_cards
+
+    ctrl_names = list(rng.choice(name_pool, 3, replace=False))
+    same_name_hits = []
+    for ci, nm in enumerate(ctrl_names):
+        for im, _ in generate_same_name_cards(nm, 20, seed=7000 + ci):
+            enc = retriever.encode_page(im)
+            distr = list(rng.choice([x for x in name_pool if x != nm], args.k - 1, replace=False))
+            scores = [maxsim(q(c), enc.patches) for c in [nm] + distr]
+            same_name_hits.append(int(np.argmax(scores) == 0))
+    same_name_maxsim = float(np.mean(same_name_hits))
+    print(f"SAME-NAME-DIFFERENT-TEMPLATE control: MaxSim recovers fixed name across varied layouts = {same_name_maxsim:.3f} (chance {1/args.k:.3f})")
 
     # verdict against pre-registered thresholds
     greenlight = any(v["mlp_name_acc"] >= GREENLIGHT_ACC or max(v["maxsim_acc"].values()) >= MAXSIM_GREENLIGHT
@@ -174,6 +190,7 @@ def main() -> None:
     decision = "GREENLIGHT_ATTACK" if greenlight else ("STRUCTURE_PAPER" if structure_kill else "INCONCLUSIVE")
 
     payload = {"mode": "patch_probe", "alignment": align_info, "fonts": fonts,
+               "varied_templates": True, "same_name_diff_template_maxsim": same_name_maxsim,
                "per_font": {str(k): v for k, v in per_font.items()},
                "greenlight": greenlight, "probe_powered": powered, "structure_kill": structure_kill,
                "decision": decision, "fingerprint": run_fingerprint()}

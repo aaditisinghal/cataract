@@ -72,7 +72,7 @@ def main() -> None:
         ranked = [cands[i] for i in order]
         return ranked[0], ranked[:topk], (ranked[0] == true_val), (true_val in ranked[:topk])
 
-    cards = generate_id_cards(args.n, seed=42, value_font_size=args.font_size)
+    cards = generate_id_cards(args.n, seed=42, value_font_size=args.font_size, vary=True)
     rows = []
     agg = {"name": [0, 0], "id_no": [0, 0], "dob": [0, 0]}  # [top1, top5]
     for i, (im, fs) in enumerate(cards):
