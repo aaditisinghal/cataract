@@ -236,6 +236,29 @@ The decisive security test: the attacker **KNOWS the public P** (Kerckhoffs). Fo
 - **Efficiency (CPU, efficiency_bench):** P applies at **0.62 µs/patch (0.64 ms/page @ 1030)**, **+0 B** stored,
   **0** query-path overhead, 131 K params (527 KB one-time).
 
+### 4.14 Completion batch — attack tightenings + defense characterization (git 8cb6b45, A100)
+- **Positional rerank closes the transposition gap (retrieval_rerank, n=40, D=999).** Two-stage MaxSim →
+  positional-bigram rerank: **id_no 0.725 → 0.80**, **dob 0.50 → 0.70** exact top-1 (top-K recall 0.95 / 0.925 —
+  the true value is nearly always in the top-K; the rerank pulls it to #1). Confirms the id/dob misses were
+  digit *transposition*, not absence.
+- **Arrangement is a NULL (arrangement_control, Claim 1c, n=40).** ordered recovery **1.000** = shuffled **1.000**,
+  Δ=0, per-card agreement 1.0 → the leak is **content, not spatial arrangement** (MaxSim is order-invariant).
+  A clean controlled negative.
+- **FUNSD answer-fields-only (funsd_transfer --labels answer, n=449 real fields, 20-lineup, chance 0.05).**
+  Fair real-doc number: top-1 **0.225** / top-5 **0.673** (was 0.19 diluted by boilerplate). Scales with length:
+  **long(>8) 0.303**, short(≤8) 0.056 (≈chance). Real-doc transfer is real but glyph/length-gated.
+- **ViDoRe-style NDCG@5 utility (vidore_utility, synthetic corpus).** vanilla NDCG@5 **0.966** → learned-P
+  **0.926** (Recall@1 0.93→0.83, MRR 0.95→0.90) at non-adaptive privacy 0.867 (λ=5). Flat noise at matched
+  privacy is far worse (σ=0.2 → NDCG 0.759 @ priv 0.13). **P dominates flat noise on a real retrieval metric,
+  not just synthetic Recall@1.** *Caveats: synthetic (not real ViDoRe) corpus; the privacy is the non-adaptive
+  number — §4.13 still breaks it adaptively.*
+- **Fundamental floor (defense_floor).** As PII↔retrieval entanglement α rises (topic-target → name-target),
+  the achievable frontier degrades: util@priv-0.8 = 0.65 at α=0 (PII incidental), falling as α→1 (find-by-name).
+  The defense works where PII is incidental and hits a floor where PII *is* the retrieval content.
+- **Ablation (defense_ablation, partial 6/14 cells — killed for speed).** linear ≈ MLP: linear/gate-off
+  util 0.975/priv 0.975, linear/gate-on 0.925/1.000, mlp-depth1 0.975/1.000 → a **linear** P nearly matches
+  the MLP (interpretable). Full sweep + baselines + cross-model defense re-queued in the combined fire batch.
+
 ---
 
 ## 5. Claims — final state
