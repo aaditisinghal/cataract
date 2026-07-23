@@ -39,7 +39,11 @@ case "$JOB" in
     ;;
   bigfont)
     OUT="gs://patchguard-reakon-artifacts/runs/bigfont-${TAG}"
-    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.bigfont_probe --out ${OUT} --n-train 60 --n-test 20 --epochs 400 --resolution 768 --channels 256 --font-size 34"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.bigfont_probe --out ${OUT} --n-train 60 --n-test 20 --epochs 400 --resolution 512 --channels 128 --font-size 34"
+    ;;
+  probe)
+    OUT="gs://patchguard-reakon-artifacts/runs/probe-${TAG}"
+    CMD="docker run --gpus all --entrypoint python ${IMG} -m experiments.patch_probe --out ${OUT} --n 300 --k 8 --fonts 12,24,48"
     ;;
   *)
     OUT="gs://patchguard-reakon-artifacts/runs/decoder-gce-${TAG}"
