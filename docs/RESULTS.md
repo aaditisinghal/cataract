@@ -302,6 +302,19 @@ broke the residual P. Full k-sweep (d=128):
 - **Deploy cost (efficiency_bench, CPU).** Index-time only: **0.64 ms/page**, **+0 B** storage, **0** query-path cost →
   ~$4 of CPU to protect **1 billion** pages, $0 ongoing. The only real cost is the tunable ~5-pt utility trade.
 
+### 4.17 Reviewer-requested experiments (git 09da9a9, A100) — *batch partially collected; auth-gated*
+- **★ Margin analysis substantiates "holographic" (margin_analysis, n=40, K=201).** The reviewer's objection: top-1
+  pinned at 1.00 can't distinguish *smeared* from *barely-winning*. We measured the linkage **margin** = (true-name
+  MaxSim) − (best-distractor MaxSim) vs. deletion fraction: **+1.51 → +1.53 → +1.53 → +1.53 → +1.55** at 0 / 6 / 12 /
+  22 / **35%** of page patches deleted (top-1 = 1.00 throughout; margin retained **1.02×** of baseline). The margin does
+  **not** decay — it holds (slightly rises) as a third of the page is removed → the field is genuinely distributed, not
+  barely-winning. Upgrades the holographic claim from "recovery stays 1.00" to "the score margin is undiminished."
+  Verdict: `holographic_margin_persists`.
+- **Pending collection (batch driver died on session restart; gcloud re-auth required):** `dim_baselines`
+  (random-proj / PCA-32 vs Cataract), `lineup_scaling` (recovery vs K=10²–10⁵ + open-world rejection ROC),
+  `defense_pii` (name/id/dob + combined nullspace subspaces), and multi-seed (`adaptive`/`certified` seeds 1–2 for
+  mean±CI). These were fired to the same warm VM; results land at `runs/{dimbase,lineup,piidef,adaptive-s*,certified-s*}-repro-09da9a9`.
+
 ---
 
 ## 5. Claims — final state
