@@ -310,10 +310,18 @@ broke the residual P. Full k-sweep (d=128):
   **not** decay — it holds (slightly rises) as a third of the page is removed → the field is genuinely distributed, not
   barely-winning. Upgrades the holographic claim from "recovery stays 1.00" to "the score margin is undiminished."
   Verdict: `holographic_margin_persists`.
-- **Pending collection (batch driver died on session restart; gcloud re-auth required):** `dim_baselines`
-  (random-proj / PCA-32 vs Cataract), `lineup_scaling` (recovery vs K=10²–10⁵ + open-world rejection ROC),
-  `defense_pii` (name/id/dob + combined nullspace subspaces), and multi-seed (`adaptive`/`certified` seeds 1–2 for
-  mean±CI). These were fired to the same warm VM; results land at `runs/{dimbase,lineup,piidef,adaptive-s*,certified-s*}-repro-09da9a9`.
+- **★ Dimensionality reduction ≠ Cataract (dim_baselines) — answers "why not just smaller embeddings?"** On the same
+  frontier: **random projection to 32-d** → utility 0.85, privacy **0.175**; **PCA to 32-d** → utility 0.925, privacy
+  **0.20**. Neither approaches Cataract's privacy **0.90 @ utility 0.875** (k=96). Compression is content-agnostic and
+  keeps leaking; Cataract removes the PII *subspace* while sparing content — the win is subspace removal, not fewer dims.
+- **⚠️ Lineup-size scaling — confounded, needs a corrected run (lineup_scaling).** Naive result shows recovery 1.00 at
+  K=100 then 0.00 at K≥1000; this is a **MaxSim length-bias artifact**, not graceful decay: the large-K distractors are
+  middle-initial padded ("JAMES A SMITH"), which carry all the true tokens plus an extra one, and since MaxSim *sums*
+  over query tokens the longer candidate outscores the true 2-token name. A corrected sweep needs length-matched
+  distractors from a large (≥10⁵) real-name vocabulary; deferred. The open-world **rejection ROC** ran but is weak
+  (TPR ~0.05 at FPR 0) and should be re-run with the corrected lineup.
+- **Still pending (re-firing on a fresh VM):** `defense_pii` (name/id/dob + combined subspaces) and multi-seed
+  (`adaptive`/`certified` seeds 1–2 → mean±CI).
 
 ---
 
