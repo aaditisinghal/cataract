@@ -73,6 +73,15 @@ exec_exp experiments.vidore_utility     "vidore"             --lam 5.0 --n-corpu
 # cold alternative: scripts/12_train_vm.sh us-central1-a a100 defense
 
 # ==================================================================================================
+# PHASE 3 — REVIEWER EXPERIMENTS (margin, dimensionality baselines, lineup-scaling, per-field defense)
+# ==================================================================================================
+scripts/21_exec.sh experiments.margin_analysis  margin   --n 40 --distractors 200 --font-size 24
+scripts/21_exec.sh experiments.dim_baselines    dimbase  --n-train 64 --n-test 40 --distractors 200 --font-size 24
+scripts/21_exec.sh experiments.lineup_scaling   lineup   --n 40 --Ks 100,1000,10000,100000 --font-size 34
+scripts/21_exec.sh experiments.defense_pii      piidef   --n-train 64 --n-test 40 --k 96 --distractors 200 --font-size 24
+scripts/21_exec.sh experiments.certified_defense certified --ks 0,2,4,8,16,32,48,64,80,96,112,128 --n-train 64 --n-test 40
+
+# ==================================================================================================
 # AGGREGATE the multi-seed families into mean +/- 95% CI + Holm-Bonferroni (A2)
 # ==================================================================================================
 exec_agg() { echo "### agg $*"; scripts/21_exec.sh experiments.aggregate_seeds "$@"; }
