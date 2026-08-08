@@ -1,0 +1,161 @@
+[
+[
+[
+"Field",
+"ColPali",
+"BiPali",
+"McNemar",
+"chance"
+],
+[
+"Name",
+"1.00",
+"0.08",
+"55:0",
+"0.005"
+],
+[
+"ID number",
+"0.85",
+"0.03",
+"49:0",
+"0.005"
+],
+[
+"Date of birth",
+"0.82",
+"0.02",
+"48:0",
+"0.005"
+]
+],
+[
+[
+"Strategy",
+"Recovery",
+"Breaks?"
+],
+[
+"Distillation probe",
+"0.00",
+"no"
+],
+[
+"Inverse learning",
+"1.00",
+"YES"
+],
+[
+"Adaptive query",
+"0.00",
+"no"
+],
+[
+"Correlation",
+"0.00",
+"no"
+]
+],
+[
+[
+"k",
+"Priv. (adapt.)",
+"Utility",
+"Recon cos"
+],
+[
+"32",
+"0.60",
+"0.925",
+"0.969"
+],
+[
+"64",
+"0.675",
+"0.900",
+"0.947"
+],
+[
+"80",
+"0.70",
+"0.875",
+"0.934"
+],
+[
+"96 (knee)",
+"0.90",
+"0.875",
+"0.918"
+],
+[
+"112",
+"0.875",
+"0.675",
+"0.888"
+],
+[
+"residual",
+"0.025",
+"0.95",
+"0.998"
+]
+],
+[
+[
+"Defense",
+"Privacy",
+"Utility",
+"Attacker"
+],
+[
+"EntroGuard",
+"0.00",
+"0.93",
+"non-adaptive"
+],
+[
+"Koga",
+"0.03",
+"0.93",
+"non-adaptive"
+],
+[
+"PRESS",
+"0.82",
+"0.80",
+"non-adaptive"
+],
+[
+"Cataract (k=96)",
+"0.90",
+"0.875",
+"adaptive"
+]
+],
+[
+[
+"Metric",
+"Value"
+],
+[
+"Index-time compute",
+"0.64 ms / page"
+],
+[
+"Added storage",
+"+0 bytes"
+],
+[
+"Query-path overhead",
+"0"
+],
+[
+"Protect 10^9 pages",
+"\u2248178 CPU-hours (one-time)"
+],
+[
+"Ongoing cost",
+"$0"
+]
+]
+]
