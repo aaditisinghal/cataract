@@ -43,7 +43,7 @@ echo "==> creating warm VM ${VM} (${PROFILE}) in ${ZONE} with image ${IMG}"
   --maintenance-policy=TERMINATE --provisioning-model=STANDARD \
   --image-family=common-cu129-ubuntu-2204-nvidia-580 --image-project=deeplearning-platform-release \
   --boot-disk-size=150GB --scopes=cloud-platform \
-  --max-run-duration=14400s --instance-termination-action=DELETE \
+  --max-run-duration=28800s --instance-termination-action=DELETE \
   --metadata-from-file=startup-script=<(printf '%s' "$STARTUP") \
   --labels=project=patchguard,phase=warm
 echo "${VM}" > .warm_vm; echo "${ZONE}" > .warm_zone

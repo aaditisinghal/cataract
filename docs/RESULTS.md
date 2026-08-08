@@ -314,14 +314,28 @@ broke the residual P. Full k-sweep (d=128):
   frontier: **random projection to 32-d** → utility 0.85, privacy **0.175**; **PCA to 32-d** → utility 0.925, privacy
   **0.20**. Neither approaches Cataract's privacy **0.90 @ utility 0.875** (k=96). Compression is content-agnostic and
   keeps leaking; Cataract removes the PII *subspace* while sparing content — the win is subspace removal, not fewer dims.
-- **⚠️ Lineup-size scaling — confounded, needs a corrected run (lineup_scaling).** Naive result shows recovery 1.00 at
-  K=100 then 0.00 at K≥1000; this is a **MaxSim length-bias artifact**, not graceful decay: the large-K distractors are
-  middle-initial padded ("JAMES A SMITH"), which carry all the true tokens plus an extra one, and since MaxSim *sums*
-  over query tokens the longer candidate outscores the true 2-token name. A corrected sweep needs length-matched
-  distractors from a large (≥10⁵) real-name vocabulary; deferred. The open-world **rejection ROC** ran but is weak
-  (TPR ~0.05 at FPR 0) and should be re-run with the corrected lineup.
-- **Still pending (re-firing on a fresh VM):** `defense_pii` (name/id/dob + combined subspaces) and multi-seed
-  (`adaptive`/`certified` seeds 1–2 → mean±CI).
+- **★ Lineup-size scaling — CORRECTED (lineup_scaling_v2, n=40, L4, git 09da9a9).** The original naive result (recovery
+  1.00 at K=100 collapsing to 0.00 at K≥1000) was a **MaxSim length-bias artifact**: past the 240-name base vocabulary,
+  distractors were middle-initial padded ("JAMES A SMITH"), so MaxSim's per-token sum let the longer candidate outscore
+  the true 2-token name on token count alone, not difficulty. Fixed by generating every candidate — true values and
+  distractors alike — as exactly two space-separated name-like tokens up to K=10⁵ (procedural two-syllable names once
+  the closed real-name vocabulary is exhausted; `experiments/lineup_scaling_v2.py`, invariant-checked: pool token-length
+  set = {2}). **Corrected result: recovery 1.00 → 1.00 → 0.975 → 0.925 at K = 100 / 1,000 / 10,000 / 100,000** — graceful
+  decay, not collapse, with lift over chance rising to **92,500×** at K=100,000. The open-world **rejection ROC** is
+  correspondingly strong once length-matched: **AUC 0.971**, true-accept 0.85 at false-accept 0.0 (was mis-diagnosed as
+  weak, TPR≈0.05 at FPR 0, under the confounded lineup). Verdict: `lineup_scaling_length_matched_confirmed`.
+- **★ Combined-subspace field defense (defense_pii, n_train=64/n_test=40, L4, git 09da9a9).** Per-field Cataract
+  subspaces (k=96 each) suppress only their own field (e.g. the `name` subspace: name 0.975→0.025, but id 0.775→0.775
+  and dob 0.925→0.925 remain exposed — single-field defense leaves the other fields fully leaking). The **combined**
+  subspace (rank 123, union of the three k=96 directions) suppresses all three simultaneously — name/id/dob all to
+  **0.000** — at utility cost 0.925→0.325 (0.60 drop). Confirms Cataract's subspace must be fit per-deployment across
+  every PII field jointly, not per-field independently.
+- **★ Cross-model defense generalization (defense_crossmodel, ColQwen2, L4, git 09da9a9).** RedactionProjection
+  trained on ColQwen2 (not just ColPali): at λ=5, **privacy 1.00 @ utility 0.938**; utility-at-fixed-privacy
+  **0.713 / 0.837 / 0.878** at privacy 0.5 / 0.8 / 0.9. Confirms the defense mechanism (not just the leak) is a
+  multi-vector-VLM-class property, reproducing on a second backbone (Qwen2-VL vs. PaliGemma).
+- **Still pending (VM safety-window truncated the queue twice — `max-run-duration` hit mid-chain both times, not a
+  bug):** multi-seed (`adaptive_attack`/`certified_defense` seeds 1–2 → mean±CI via `aggregate_seeds`), re-queued.
 
 ---
 
