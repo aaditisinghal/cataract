@@ -1,5 +1,8 @@
 # Artifact Appendix — *The Persistence of Vision*
 
+> Companion artifact for *The Persistence of Vision: State-of-the-Art Privacy for Multi-Vector VLM
+> Retrievers*. [Paper (PDF)](../paper/PersistenceOfVision.pdf) · [README](../README.md).
+
 *PII Reconstruction and Patch-Scoped Privacy in Multi-Vector Vision-Language Retrieval*
 
 USENIX Security / IEEE S&P artifact-evaluation appendix. This document is self-contained: it lets an

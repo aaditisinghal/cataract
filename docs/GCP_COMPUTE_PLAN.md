@@ -1,5 +1,9 @@
 # GCP Compute Plan — PatchGuard
 
+> Compute infrastructure behind *The Persistence of Vision: State-of-the-Art Privacy for
+> Multi-Vector VLM Retrievers* — all decisive experiments ran on **NVIDIA A100 (40GB)** GPUs via
+> this plan; see the [paper](../paper/PersistenceOfVision.pdf).
+
 **v1.0** · budget: **$25,000 GCP credits** · workload from [`RESEARCH_PROTOCOL.md`](RESEARCH_PROTOCOL.md)
 
 ---

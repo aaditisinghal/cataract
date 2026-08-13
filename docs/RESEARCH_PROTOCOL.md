@@ -1,5 +1,9 @@
 # The Persistence of Vision
 
+> **State-of-the-Art Privacy for Multi-Vector VLM Retrievers.** This is the research protocol; see
+> the [paper](../paper/PersistenceOfVision.pdf) for the finished result and [README](../README.md)
+> for the summary.
+
 ### PII Reconstruction and Patch-Scoped Privacy in Multi-Vector Vision-Language Retrieval
 
 **Research protocol — v1.1 (revised)**

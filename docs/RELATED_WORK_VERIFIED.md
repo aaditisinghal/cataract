@@ -1,5 +1,8 @@
 # Related-Work Verification (S0 premise gate)
 
+> Citation audit for *The Persistence of Vision: State-of-the-Art Privacy for Multi-Vector VLM
+> Retrievers*. [Paper (PDF)](../paper/PersistenceOfVision.pdf) · [README](../README.md).
+
 **Date:** 2026-07-22 · **Method:** each arXiv ID fetched directly (raw HTTP + export API, not memory);
 a bogus control ID returned 404 to confirm the checker wasn't rubber-stamping.
 **Corrections applied:** 2026-07-23 (D1).

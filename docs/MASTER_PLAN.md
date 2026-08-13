@@ -1,5 +1,9 @@
 # PatchGuard — Master Plan (0 → 100)
 
+> Execution roadmap for *The Persistence of Vision: State-of-the-Art Privacy for Multi-Vector VLM
+> Retrievers* — see the [paper](../paper/PersistenceOfVision.pdf) and [README](../README.md) for the
+> finished result this plan built toward.
+
 **v1.0** · the single execution roadmap. Read this first; it points to the other two docs.
 
 - **Science / what's true:** [`RESEARCH_PROTOCOL.md`](RESEARCH_PROTOCOL.md)

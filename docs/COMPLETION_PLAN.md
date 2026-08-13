@@ -1,5 +1,8 @@
 # Completion Plan — Attack Phase + Solution Phase
 
+> Planning doc toward *The Persistence of Vision: State-of-the-Art Privacy for Multi-Vector VLM
+> Retrievers*. [Paper (PDF)](../paper/PersistenceOfVision.pdf) · [README](../README.md).
+
 **Deep, actionable plan for everything missing** to take the paper from "science locked" to
 "submittable." Organized as **Phase 1 (Attack/Findings)**, **Phase 2 (Solution/Defense)**,
 **Cross-cutting rigor**, and **Writeup & packaging**. Each item: *what · why · how (concrete design) ·
