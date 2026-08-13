@@ -6,9 +6,9 @@
 # Vertex/GCE use attached service accounts + your keyless ADC, which is enough.
 set -euo pipefail
 
-# ---- ACTUAL VALUES (provisioned 2026-07-22) --------------------------------
-PROJECT_ID="patchguard-reakon"             # created under org profitwise.app (483346253498)
-BILLING_ACCT="014F80-4CDA1C-D6AEC2"        # "My Billing Account" (holds the $25k credits)
+# ---- FILL IN YOUR OWN VALUES ------------------------------------------------
+PROJECT_ID="your-gcp-project-id"
+BILLING_ACCT="XXXXXX-XXXXXX-XXXXXX"        # your GCP billing account ID
 REGION="us-central1"                        # best A100/L4 availability + price
 # ---------------------------------------------------------------------------
 # NOTE: this project is ALREADY provisioned (project+billing+APIs+buckets+registry+ADC all done).

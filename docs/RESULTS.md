@@ -28,7 +28,7 @@ adaptive attacker, real-retrieval utility (ViDoRe).*
 
 ## 1. Infrastructure & reproducibility (all live)
 
-- **GCP project:** `patchguard-reakon` (org profitwise.app), billing = $25k credit acct `014F80-4CDA1C-D6AEC2`.
+- **GCP project:** `patchguard-reakon` (org profitwise.app), billing = $25k credit account (redacted for public release).
 - **Buckets:** `gs://patchguard-reakon-data` (FUNSD staged), `gs://patchguard-reakon-artifacts` (all run JSON + logs).
 - **Repro image:** built by `scripts/10_build_image.sh` → Artifact Registry `…/patchguard/repro:<git_sha>`.
   Base `pytorch/pytorch:2.3.1-cuda12.1-cudnn8-runtime` (Python 3.10). **Pinned `colpali-engine==0.3.5`**
