@@ -7,6 +7,9 @@
 📄 **[Read the paper — PDF](paper/PersistenceOfVision.pdf)** · **[DOCX (exact IEEE formatting)](paper/PersistenceOfVision.docx)**
 📊 **[Full results & every metric](docs/RESULTS.md)** — the source of truth behind every number below.
 
+> Mirrored from [kbhatnagar1506/cataract](https://github.com/kbhatnagar1506/cataract),
+> created by Krishna Bhatnagar. Full commit history preserved.
+
 ---
 
 ## TL;DR
