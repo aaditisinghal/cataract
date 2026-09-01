@@ -1,7 +1,7 @@
 # Cataract — State-of-the-Art Privacy for Multi-Vector VLM Retrievers
 
 **Paper:** *The Persistence of Vision: State-of-the-Art Privacy for Multi-Vector VLM Retrievers*
-**Author:** Krishna Bhatnagar · Reakon Labs Private Limited
+**Author:** Krishna Bhatnagar & Aaditi Singhal · Reakon Labs Private Limited
 **Target venue:** IEEE S&P (primary)
 
 📄 **[Read the paper — PDF](paper/PersistenceOfVision.pdf)** · **[DOCX (exact IEEE formatting)](paper/PersistenceOfVision.docx)**
@@ -119,7 +119,7 @@ the author directly.
 ```bibtex
 @article{bhatnagar2026persistence,
   title   = {The Persistence of Vision: State-of-the-Art Privacy for Multi-Vector VLM Retrievers},
-  author  = {Bhatnagar, Krishna},
+  author  = {Bhatnagar, Krishna; Singhal, Aaditi},
   year    = {2026},
   note    = {Reakon Labs Private Limited},
 }
